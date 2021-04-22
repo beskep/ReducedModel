@@ -1,0 +1,20 @@
+name: rmpip
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - pip:
+    - pyside2>=5.15
+    - pyqt5>=5.15
+  - pytest
+  - cx_freeze
+  - rich
+  - loguru
+  # - nomkl
+  - numpy
+  - control
+  - slycot
+  - matplotlib-base
+  - seaborn
