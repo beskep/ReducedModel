@@ -2,7 +2,7 @@ import utils
 
 import numpy as np
 
-from reduced_model import ModelReducer
+from reduced_model import ModelReducer, Location
 
 if __name__ == '__main__':
   model = ModelReducer(order=50)
@@ -23,14 +23,12 @@ if __name__ == '__main__':
 
   model.set_fluid_temperature(interior=20.0, exterior=10.0)
 
-  model.set_temperature_condition(
-      fn=lambda x: (20 + np.sin(np.pi * 0.5 * x / 6)),
-      loc='interior',
-  )
-  model.set_temperature_condition(
-      fn=lambda x: (10 + 5 * np.sin(np.pi * 0.5 * x / 6)),
-      loc='exterior',
-  )
+  model.set_temperature_condition(fn=lambda x:
+                                  (20 + np.sin(np.pi * 0.5 * x / 6)),
+                                  loc=Location.Interior)
+  model.set_temperature_condition(fn=lambda x:
+                                  (10 + 5 * np.sin(np.pi * 0.5 * x / 6)),
+                                  loc=Location.Exterior)
 
   model.reduce_model()
 

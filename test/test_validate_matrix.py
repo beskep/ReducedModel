@@ -5,7 +5,7 @@ import utils
 import numpy as np
 import pytest
 
-from reduced_model.reduced_model import ModelReducer
+from reduced_model.reduced_model import ModelReducer, Location
 
 
 def _read_test_matrices():
@@ -28,14 +28,12 @@ def _read_test_matrices():
 
   model.set_fluid_temperature(interior=20.0, exterior=10.0)
 
-  model.set_temperature_condition(
-      fn=lambda x: (20 + np.sin(np.pi * 0.5 * x / 6)),
-      loc='interior',
-  )
-  model.set_temperature_condition(
-      fn=lambda x: (10 + 5 * np.sin(np.pi * 0.5 * x / 6)),
-      loc='exterior',
-  )
+  model.set_temperature_condition(fn=lambda x:
+                                  (20 + np.sin(np.pi * 0.5 * x / 6)),
+                                  loc=Location.Interior)
+  model.set_temperature_condition(fn=lambda x:
+                                  (10 + 5 * np.sin(np.pi * 0.5 * x / 6)),
+                                  loc=Location.Exterior)
 
   return model.compute_state_matrices()
 

@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from typing import Callable, Tuple, Union
 
 import numpy as np
@@ -42,6 +43,11 @@ class ModelSettingError(ValueError):
 
 class ModelNotReduced(ValueError):
   pass
+
+
+class Location(Enum):
+  Interior = 1
+  Exterior = 2
 
 
 class ModelReducer:
@@ -123,22 +129,25 @@ class ModelReducer:
 
     self._targets = sparse_hstack(targets)
 
-  def set_temperature_condition(self, fn, loc: str):
+  def set_temperature_condition(self, fn: Callable[[int], float],
+                                loc: Location):
     """
     온도 조건 함수 설정
 
     Parameters
     ----------
-    fn : f: time[step] -> temperature[°C]
-    loc : {'interior', 'exterior'}
+    fn : Callable[[int], float]
+        time[step] -> temperature[°C]
+    loc : Location
+        location
     """
-    loc = loc.lower()
-    if loc == 'interior':
+    if not isinstance(loc, Location):
+      raise ValueError(f'f{loc} not in {Location}')
+
+    if loc is Location.Interior:
       self._internal_temp_fn = fn
-    elif loc == 'exterior':
+    elif loc is Location.Exterior:
       self._external_temp_fn = fn
-    else:
-      raise ValueError
 
   def _check_matrices(self):
     for name, var in zip(['system matrix', 'target nodes'],

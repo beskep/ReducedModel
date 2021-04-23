@@ -34,7 +34,7 @@ def test_read_matrix():
 
 
 def test_read_symmetric_matrix():
-  path = DATA_DIR.joinpath('simple_modelingTHERM1_STIF1.mtx')
+  path = DATA_DIR.joinpath('test_case_simple/simple_modelingTHERM1_STIF1.mtx')
   mtx = MatrixReader(path, is_symmetric=True).matrix.toarray()
 
   assert np.allclose(mtx, mtx.T, rtol=0)
@@ -72,7 +72,8 @@ def test_find_max_node():
 
   _max_node_assert(DATA_DIR.joinpath('test_case/C.txt'), 3270)
   _max_node_assert(DATA_DIR.joinpath('test_case/specific1.txt'), 2371)
-  _max_node_assert(DATA_DIR.joinpath('C_HcombTHERM1_DMPV1.mtx'), 168)
+  _max_node_assert(
+      DATA_DIR.joinpath('test_case_simple/C_HcombTHERM1_DMPV1.mtx'), 168)
 
 
 if __name__ == '__main__':

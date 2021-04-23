@@ -178,9 +178,9 @@ class Controller(BaseController):
         dt=dt)
 
     self._reducer.set_temperature_condition(fn=interior_temperature_fn,
-                                            loc='interior')
+                                            loc=rm.Location.Interior)
     self._reducer.set_temperature_condition(fn=external_temperature_fn,
-                                            loc='exterior')
+                                            loc=rm.Location.Exterior)
 
     self._plot_controller.clear_plot()
     if self._compute(dt, time_steps, initial_temperature):

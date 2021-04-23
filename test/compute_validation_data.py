@@ -4,7 +4,7 @@ import utils
 
 import numpy as np
 
-from reduced_model.reduced_model import ModelReducer
+from reduced_model.reduced_model import ModelReducer, Location
 
 
 def compute(orders):
@@ -28,14 +28,12 @@ def compute(orders):
 
     model.set_fluid_temperature(interior=20.0, exterior=10.0)
 
-    model.set_temperature_condition(
-        fn=lambda x: (20 + np.sin(np.pi * 0.5 * x / 6)),
-        loc='interior',
-    )
-    model.set_temperature_condition(
-        fn=lambda x: (10 + 5 * np.sin(np.pi * 0.5 * x / 6)),
-        loc='exterior',
-    )
+    model.set_temperature_condition(fn=lambda x:
+                                    (20 + np.sin(np.pi * 0.5 * x / 6)),
+                                    loc=Location.Interior)
+    model.set_temperature_condition(fn=lambda x:
+                                    (10 + 5 * np.sin(np.pi * 0.5 * x / 6)),
+                                    loc=Location.Exterior)
 
     fname = save_dir.joinpath('reduction_output_{}.txt'.format(order))
     model.compute(dt=3600, time_step=200, fname=fname)
