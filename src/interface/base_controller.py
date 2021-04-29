@@ -1,3 +1,5 @@
+from functools import wraps
+
 import numpy as np
 from loguru import logger
 from PyQt5 import QtCore, QtGui
@@ -7,6 +9,7 @@ from .plot_controller import PlotController
 
 def popup(fn):
 
+  @wraps(fn)
   def wrapper(self, *args, **kwargs):
     try:
       res = fn(self, *args, **kwargs)
@@ -112,12 +115,12 @@ class BaseController(QtCore.QObject):
     file_type = self.FILE_TYPES[index]
     self._files[file] = file_type
 
-    logger.debug('{}: {}', file_type, file)
+    logger.debug('{}: `{}`', file_type, file)
 
   @QtCore.Slot(str)
   def delete_file(self, value):
     self._files.pop(value)
-    logger.debug('File deleted: {}', value)
+    logger.debug('File deleted: `{}`', value)
 
   @QtCore.Slot()
   def delete_all_files(self):
@@ -134,7 +137,7 @@ class BaseController(QtCore.QObject):
       pass
 
     self._options[key] = value
-    logger.debug('Option {}: {} ({})', key, value, type(value))
+    logger.debug('Option `{}`: {} ({})', key, value, type(value))
 
   @popup
   def validate_files(self):
