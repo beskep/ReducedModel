@@ -32,4 +32,4 @@ if __name__ == '__main__':
 
   model.reduce_model()
 
-  model.compute(dt=3600, time_step=200)
+  model.compute(dt=3600, time_step=200, initial_temperature=10.0)

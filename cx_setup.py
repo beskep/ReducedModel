@@ -27,7 +27,7 @@ includes = [
     'control',
     'slycot',
 ]
-excludes = ['PySide2']
+excludes = ['PySide2', 'email', 'pdb', 'pydoc', 'tkinter']
 zip_include_packages = []
 
 try:

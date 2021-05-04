@@ -18,10 +18,8 @@ import reduced_model.matrix_reader as mr
 cnsl = Console()
 
 
-def reduce_model(order: int, mtxA: csc_matrix, mtxB: csc_matrix,
-                 mtxJ: csc_matrix):
-  original_system = StateSpace(mtxA.toarray(), mtxB.toarray(), mtxJ.toarray(),
-                               0)
+def reduce_model(order: int, A: csc_matrix, B: csc_matrix, J: csc_matrix):
+  original_system = StateSpace(A.toarray(), B.toarray(), J.toarray(), 0)
 
   if not order:
     reduced_system = original_system
@@ -31,8 +29,8 @@ def reduce_model(order: int, mtxA: csc_matrix, mtxB: csc_matrix,
       reduced_system = balred(sys=original_system, orders=order)
 
   reduced_order = reduced_system.A.shape[0]
-  if mtxA.shape[0] != reduced_order:
-    logger.info('모델 리덕션 완료 (dim {} to {})', mtxA.shape[0], reduced_order)
+  if A.shape[0] != reduced_order:
+    logger.info('모델 리덕션 완료 (dim {} to {})', A.shape[0], reduced_order)
 
   return reduced_system, reduced_order
 
@@ -105,10 +103,9 @@ class ModelReducer:
         raise ValueError(f'{name} matrix가 정방행렬이 아님')
 
   def has_matrices(self) -> bool:
-    return all(x is not None for x in [
-        self._damping_mtx, self._stiffness_mtx, self._internal_load_mtx,
-        self._external_load_mtx
-    ])
+    matrices = (self._damping_mtx, self._stiffness_mtx, self._internal_load_mtx,
+                self._external_load_mtx)
+    return all(x is not None for x in matrices)
 
   def has_reduced_model(self) -> bool:
     return all(
@@ -180,22 +177,22 @@ class ModelReducer:
     ])
 
     inv_damping = sparse_inv(self._damping_mtx)  # inv(C)
-    mtxA = -np.dot(inv_damping, self._stiffness_mtx)  # inv(C) * -K
-    mtxB = np.dot(inv_damping, load_all)  # inv(C) * L
-    mtxJ = self._targets.transpose()
+    A = -np.dot(inv_damping, self._stiffness_mtx)  # inv(C) * -K
+    B = np.dot(inv_damping, load_all)  # inv(C) * L
+    J = self._targets.transpose()
 
-    return mtxA, mtxB, mtxJ
+    return A, B, J
 
   def reduce_model(self) -> tuple[StateSpace, int]:
-    mtxA, mtxB, mtxJ = self.compute_state_matrices()
+    A, B, J = self.compute_state_matrices()
     logger.info('State matrices 계산 완료')
 
-    rsystem, rorder = reduce_model(self._order, mtxA, mtxB, mtxJ)
+    system, order = reduce_model(self._order, A, B, J)
 
-    self._reduced_system = rsystem
-    self._reduced_order = rorder
+    self._reduced_system = system
+    self._reduced_order = order
 
-    return rsystem, rorder
+    return system, order
 
   def set_reduced_model(self, reduced_system: StateSpace, reduced_order: int):
     self._reduced_system = reduced_system
@@ -204,7 +201,7 @@ class ModelReducer:
   def compute(self,
               dt: float,
               time_step: int,
-              initial_temperature=0.0,
+              initial_temperature: float = None,
               callback: Callable[[np.ndarray], None] = None,
               reduced_system=True) -> np.ndarray:
     """
@@ -215,7 +212,7 @@ class ModelReducer:
     time_step : int
         total time steps
     initial_temperature : float, optional
-        initial temperature [ºC], by default 0.0
+        initial temperature [ºC]
     callback : Callable[[np.ndarray], None], optional
         callback function for each time step (f: results(<np.ndarray>) -> None)
     reduced_system : bool, optional
@@ -237,33 +234,43 @@ class ModelReducer:
     Detailed and fast calculation of wall surface temperatures near thermal bridge area.
     Case Studies in Thermal Engineering, 25, 100936. https://doi.org/10.1016/j.csite.2021.100936
     """
+    self._check_environment_variables()
+
     if reduced_system:
       if self._reduced_system is None:
         raise ModelNotReduced('모델이 축소되지 않았습니다.')
       ss = self._reduced_system
       order = self._reduced_order
     else:
-      mtxA, mtxB, mtxJ = self.compute_state_matrices()
-      ss = StateSpace(mtxA.toarray(), mtxB.toarray(), mtxJ.toarray(), 0)  # pylint: disable=no-member
-      order = mtxA.shape[0]
+      A, B, J = self.compute_state_matrices()
+      ss = StateSpace(A.toarray(), B.toarray(), J.toarray(), 0)  # pylint: disable=no-member
+      order = A.shape[0]
 
-    self._check_environment_variables()
+    Omega = inv(np.eye(order) - dt * ss.A)  # inv(eye(Order) - dt * Ar)
+    Pi = dt * np.dot(Omega, ss.B)  # dt * Red1 * Br
 
-    mtxOmega = inv(np.eye(order) - dt * ss.A)  # inv(eye(Order) - dt * Ar)
-    mtxPi = dt * np.dot(mtxOmega, ss.B)  # dt * Red1 * Br
+    # X0
+    if initial_temperature is not None:
+      Xn = self.initial_x(Omega=Omega,
+                          Pi=Pi,
+                          T0=initial_temperature,
+                          max_iteration=1000,
+                          rtol=1e-5,
+                          atol=0)
+    else:
+      Xn = np.zeros(shape=(order, 1))
 
     # 본 연산
     results = None
-    mtxXn = np.full(shape=(order, 1), fill_value=initial_temperature)
     for ts in track(range(time_step), description='Computing...'):
       temperature = np.array([[self._internal_temp_fn(ts)],
                               [self._external_temp_fn(ts)]])
 
-      mtxXnp1 = np.dot(mtxOmega, mtxXn) + np.dot(mtxPi, temperature)
-      mtxY = (np.dot(ss.C, mtxXnp1) + np.dot(ss.D, temperature))
+      Xnp1 = np.dot(Omega, Xn) + np.dot(Pi, temperature)
+      Y = (np.dot(ss.C, Xnp1) + np.dot(ss.D, temperature))
 
-      mtxXn = mtxXnp1
-      mtxYrow = mtxY.reshape([1, -1])
+      Xn = Xnp1
+      mtxYrow = Y.reshape([1, -1])
       if results is None:
         results = mtxYrow
       else:
@@ -273,6 +280,52 @@ class ModelReducer:
         callback(results)
 
     return results
+
+  @staticmethod
+  def initial_x(Omega: np.ndarray,
+                Pi: np.ndarray,
+                T0: float,
+                max_iteration=1000,
+                rtol=1e-5,
+                atol=1e-8) -> np.ndarray:
+    """
+    초기 온도 (T0)에 대응하는 reduced model의 X0 계산
+
+    Parameters
+    ----------
+    Omega : np.ndarray
+        Reduced model 선형 방정식의 Ω
+    Pi : np.ndarray
+        Reduced model 선형 방정식의 Π
+    T0 : float
+        초기 온도
+    max_iteration : int, optional
+        Max iteration, by default 10000
+    rtol : float, optional
+        Relative convergence tolerance, by default 1e-5
+    atol : float, optional
+        Absolute convergence tolerance, by default 1e-8
+
+    Returns
+    -------
+    np.ndarray
+        X0
+    """
+    T = np.array([[T0], [T0]])
+    PiT = np.dot(Pi, T)
+
+    Xn = np.zeros(shape=(Omega.shape[0], 1))
+    Xnp1 = Xn.copy()
+    for idx in range(max_iteration):
+      Xnp1 = np.dot(Omega, Xn) + PiT
+      if np.allclose(Xnp1, Xn, rtol=rtol, atol=atol):
+        logger.debug('X0 converged after {} iterations (rtol={}, atol={})', idx,
+                     rtol, atol)
+        break
+
+      Xn = Xnp1
+
+    return Xnp1
 
   def save_reduced_model(self, path):
     if self._reduced_system is None:
