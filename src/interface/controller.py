@@ -69,8 +69,8 @@ class Controller(BaseController):
     ])
 
     self._reducer.set_fluid_temperature(
-        interior=self._options['internal fluid temperature'],
-        exterior=self._options['external fluid temperature'])
+        interior=self._options['internal air temperature'],
+        exterior=self._options['external air temperature'])
 
     logger.info('Read matrices')
 
@@ -208,8 +208,8 @@ class Controller(BaseController):
     self._reducer.load_reduced_model(path)
 
     self._reducer.set_fluid_temperature(
-        interior=self._options['internal fluid temperature'],
-        exterior=self._options['external fluid temperature'])
+        interior=self._options['internal air temperature'],
+        exterior=self._options['external air temperature'])
 
     return True
 

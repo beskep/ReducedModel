@@ -51,8 +51,8 @@ class BaseController(QtCore.QObject):
   LOGLEVELS = ('TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR',
                'CRITICAL')
 
-  FILE_TYPES = (None, 'Damping', 'Stiffness', 'Internal Load', 'External Load',
-                'Target Nodes')
+  FILE_TYPES = (None, 'Capacitance', 'Conductance', 'Internal Solicitation',
+                'External Solicitation', 'Target Nodes')
   SYSTEM_MATRICES_ID = FILE_TYPES[1:-1]  # 각 파일 하나씩 지정
   TARGET_NODES_ID = FILE_TYPES[-1]  # 복수 지정 가능
 
@@ -61,10 +61,10 @@ class BaseController(QtCore.QObject):
       'deltat',
       'time steps',
       'initial temperature',
-      'internal fluid temperature',
+      'internal air temperature',
       'internal max temperature',
       'internal min temperature',
-      'external fluid temperature',
+      'external air temperature',
       'external max temperature',
       'external min temperature',
   )

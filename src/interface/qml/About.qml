@@ -29,7 +29,7 @@ Rectangle {
                 }
 
                 Label {
-                    text : 'Built on 2021-04-20'
+                    text : 'Built on 2021-06-03'
                     font.pointSize : 12
                 }
             }

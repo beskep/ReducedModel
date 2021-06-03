@@ -61,8 +61,8 @@ class ModelReducer:
 
     self._internal_temp_fn = None
     self._external_temp_fn = None
-    self._interior_fluid_temp: float = None
-    self._exterior_fluid_temp: float = None
+    self._internal_fluid_temp: float = None
+    self._external_fluid_temp: float = None
 
     self._targets: np.ndarray = None
 
@@ -112,8 +112,8 @@ class ModelReducer:
         x is not None for x in [self._reduced_system, self._reduced_order])
 
   def set_fluid_temperature(self, interior: float, exterior: float):
-    self._interior_fluid_temp = interior
-    self._exterior_fluid_temp = exterior
+    self._internal_fluid_temp = interior
+    self._external_fluid_temp = exterior
 
   def set_target_nodes(self, files):
     reader = mr.MatrixReader(path=None, shape=(self._max_node, 1))
@@ -155,12 +155,14 @@ class ModelReducer:
   def _check_environment_variables(self):
     for name, var in zip(
         [
-            'fluid temperature',
+            'internal air temperature',
+            'external air temperature',
             'interior temperature function',
             'exterior temperature function',
         ],
         [
-            self._interior_fluid_temp,
+            self._internal_fluid_temp,
+            self._external_fluid_temp,
             self._internal_temp_fn,
             self._external_temp_fn,
         ],
@@ -172,8 +174,8 @@ class ModelReducer:
     self._check_matrices()
 
     load_all = sparse_hstack([
-        self._internal_load_mtx / self._interior_fluid_temp,
-        self._external_load_mtx / self._exterior_fluid_temp,
+        self._internal_load_mtx / self._internal_fluid_temp,
+        self._external_load_mtx / self._external_fluid_temp,
     ])
 
     inv_damping = sparse_inv(self._damping_mtx)  # inv(C)

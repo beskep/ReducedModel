@@ -53,10 +53,10 @@ Item {
                 anchors.fill : parent
 
                 OptionItem {
-                    label.text : 'Fluid temperature'
+                    label.text : 'Air temperature'
                     value : '20.0'
                     unit.text : '℃'
-                    option_id : 'internal fluid temperature'
+                    option_id : 'internal air temperature'
                 }
                 OptionItem {
                     label.text : 'Max temperature'
@@ -80,10 +80,10 @@ Item {
                 anchors.fill : parent
 
                 OptionItem {
-                    label.text : 'Fluid temperature'
+                    label.text : 'Air temperature'
                     value : '10.0'
                     unit.text : '℃'
-                    option_id : 'external fluid temperature'
+                    option_id : 'external air temperature'
                 }
                 OptionItem {
                     label.text : 'Max temperature'

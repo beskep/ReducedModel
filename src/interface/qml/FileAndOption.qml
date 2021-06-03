@@ -22,7 +22,7 @@ RowLayout {
     CustomBox {
         title : 'Options'
         padding : 10
-        Layout.preferredWidth : 40
+        Layout.preferredWidth : 35
 
         ModelOptions {
             id : model_options

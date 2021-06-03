@@ -54,15 +54,15 @@ Item {
                     objectName : 'type'
                     model : [
                         '-',
-                        'Damping',
-                        'Stiffness',
-                        'Internal Load',
-                        'External Load',
+                        'Capacitance Matrix',
+                        'Conductance Matrix',
+                        'Internal Solicitation Matrix',
+                        'External Solicitation Matrix',
                         'Target Nodes'
                     ]
 
                     enabled : rb_matrix.checked
-                    implicitWidth : 180
+                    implicitWidth : 250
                     onCurrentIndexChanged : {
                         con.select_file_and_type(list_view_text.text + '|' + currentIndex);
                     }
