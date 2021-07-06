@@ -1,7 +1,10 @@
 import sys
 from pathlib import Path
+from typing import Optional, Union
 
 from loguru import logger
+from rich.console import Console
+from rich.logging import RichHandler
 
 SRC_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SRC_DIR.parent
@@ -10,19 +13,23 @@ _SRC_DIR = SRC_DIR.as_posix()
 if _SRC_DIR not in sys.path:
   sys.path.append(_SRC_DIR)
 
+console = Console()
 
-def set_logger():
-  fmt = ('<green>{time:YYYY-MM-DD HH:mm:ss}</green> | '
-         '<level>{level: <8}</level> | '
-         '<cyan>{file}</cyan>:<cyan>{line}</cyan> - '
-         '<level>{message}</level>')
 
+def set_logger(level: Optional[Union[int, str]] = None):
   logger.remove()
 
-  if any('debug' in x.lower() for x in sys.argv):
-    level = 'DEBUG'
-  else:
-    level = 'INFO'
+  if level is None:
+    if any('debug' in x.lower() for x in sys.argv):
+      level = 'DEBUG'
+    else:
+      level = 'INFO'
 
-  logger.add(sys.stdout, level=level, format=fmt, enqueue=True)
-  logger.add('.log', rotation='1 MB', encoding='utf-8-sig', enqueue=True)
+  rich_handler = RichHandler(show_time=True, console=console)
+  logger.add(rich_handler, level=level, format='{message}', enqueue=True)
+  logger.add('rm.log',
+             level='DEBUG',
+             rotation='1 week',
+             retention='1 month',
+             encoding='UTF-8-SIG',
+             enqueue=True)

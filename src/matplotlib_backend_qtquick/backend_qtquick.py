@@ -14,10 +14,11 @@ from .qt_compat import (QT_API, QT_API_PYSIDE2, QtCore, QtGui, QtQuick,
 
 
 class FigureCanvasQtQuick(QtQuick.QQuickPaintedItem, FigureCanvasBase):
-  """ This class creates a QtQuick Item encapsulating a Matplotlib
-        Figure and all the functions to interact with the 'standard'
-        Matplotlib navigation toolbar.
-    """
+  """
+  This class creates a QtQuick Item encapsulating a Matplotlib
+  Figure and all the functions to interact with the 'standard'
+  Matplotlib navigation toolbar.
+  """
 
   dpi_ratio_changed = QtCore.Signal()
 
@@ -190,15 +191,15 @@ class FigureCanvasQtQuick(QtQuick.QQuickPaintedItem, FigureCanvasBase):
     FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
   def mouseEventCoords(self, pos):
-    """Calculate mouse coordinates in physical pixels
+    """
+    Calculate mouse coordinates in physical pixels
 
-        Qt5 use logical pixels, but the figure is scaled to physical
-        pixels for rendering.   Transform to physical pixels so that
-        all of the down-stream transforms work as expected.
+    Qt5 use logical pixels, but the figure is scaled to physical
+    pixels for rendering.   Transform to physical pixels so that
+    all of the down-stream transforms work as expected.
 
-        Also, the origin is different and needs to be corrected.
-
-        """
+    Also, the origin is different and needs to be corrected.
+    """
     dpi_ratio = self.dpi_ratio
     x = pos.x()
     # flip y so y=0 is bottom of canvas
@@ -299,20 +300,20 @@ class FigureCanvasQtQuick(QtQuick.QQuickPaintedItem, FigureCanvasBase):
 
   def new_timer(self, *args, **kwargs):
     """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`.  This is useful for getting
-        periodic events through the backend's native event
-        loop. Implemented only for backends with GUIs.
+    Creates a new backend-specific subclass of
+    :class:`backend_bases.Timer`.  This is useful for getting
+    periodic events through the backend's native event
+    loop. Implemented only for backends with GUIs.
 
-        optional arguments:
+    optional arguments:
 
-        *interval*
-            Timer interval in milliseconds
+    *interval*
+        Timer interval in milliseconds
 
-        *callbacks*
-            Sequence of (func, args, kwargs) where func(*args, **kwargs)
-            will be executed by the timer every *interval*.
-        """
+    *callbacks*
+        Sequence of (func, args, kwargs) where func(*args, **kwargs)
+        will be executed by the timer every *interval*.
+    """
     return TimerQT(*args, **kwargs)
 
   def flush_events(self):
@@ -321,8 +322,9 @@ class FigureCanvasQtQuick(QtQuick.QQuickPaintedItem, FigureCanvasBase):
 
 
 class MatplotlibIconProvider(QtQuick.QQuickImageProvider):
-  """ This class provide the matplotlib icons for the navigation toolbar.
-    """
+  """
+  This class provide the matplotlib icons for the navigation toolbar.
+  """
 
   def __init__(self, img_type=QtQuick.QQuickImageProvider.Image):
     self.basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
@@ -336,8 +338,9 @@ class MatplotlibIconProvider(QtQuick.QQuickImageProvider):
 
 
 class NavigationToolbar2QtQuick(QtCore.QObject, NavigationToolbar2):
-  """ NavigationToolbar2 customized for QtQuick
-    """
+  """
+  NavigationToolbar2 customized for QtQuick
+  """
 
   messageChanged = QtCore.Signal(str)
 
@@ -376,8 +379,9 @@ class NavigationToolbar2QtQuick(QtCore.QObject, NavigationToolbar2):
       setattr(self, attr, val)
 
   def _init_toolbar(self):
-    """ don't actually build the widgets here, build them in QML
-        """
+    """
+    don't actually build the widgets here, build them in QML
+    """
     pass
 
   # Define a few properties.
@@ -469,9 +473,9 @@ class NavigationToolbar2QtQuick(QtCore.QObject, NavigationToolbar2):
 
   def set_cursor(self, cursor):
     """
-        Set the current cursor to one of the :class:`Cursors`
-        enums values
-        """
+    Set the current cursor to one of the :class:`Cursors`
+    enums values
+    """
     self.canvas.setCursor(cursord[cursor])
 
   def draw_with_locators_update(self):

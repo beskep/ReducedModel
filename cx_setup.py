@@ -12,6 +12,7 @@ includes = [
     'loguru',
     'rich',
     'rich.console',
+    'rich.logging',
     'rich.progress',
     'PyQt5',
     'PyQt5.QtCore',

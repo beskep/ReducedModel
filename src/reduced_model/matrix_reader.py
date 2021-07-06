@@ -161,8 +161,10 @@ class SystemMatricesReader:
 
   @staticmethod
   def _find_max_node(path):
-    """mtx파일에서 최대 노드 번호를 찾아 반환
-    대상 파일이 존재하지 않는 경우 -1 반환"""
+    """
+    mtx파일에서 최대 노드 번호를 찾아 반환
+    대상 파일이 존재하지 않는 경우 -1 반환
+    """
     if not (path and os.path.exists(path)):
       return -1
 

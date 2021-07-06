@@ -5,7 +5,7 @@ import utils
 import numpy as np
 import pytest
 
-from reduced_model.reduced_model import ModelReducer, Location
+from reduced_model.reduced_model import Location, ModelReducer
 
 
 def _read_test_matrices():

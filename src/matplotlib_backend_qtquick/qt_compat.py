@@ -15,9 +15,9 @@ Support for PyQt4 is deprecated.
 (Copied and updated from matplotlib)
 """
 
-from distutils.version import LooseVersion
 import os
 import sys
+from distutils.version import LooseVersion
 
 import matplotlib as mpl
 
@@ -75,16 +75,16 @@ def _setup_pyqt5():
       _isdeleted, _devicePixelRatio, _setDevicePixelRatio, _getSaveFileName
 
   if QT_API == QT_API_PYQT5:
-    from PyQt5 import QtCore, QtGui, QtWidgets, QtQuick, QtQml
     import sip
+    from PyQt5 import QtCore, QtGui, QtQml, QtQuick, QtWidgets
     __version__ = QtCore.PYQT_VERSION_STR
     QtCore.Signal = QtCore.pyqtSignal
     QtCore.Slot = QtCore.pyqtSlot
     QtCore.Property = QtCore.pyqtProperty
     _isdeleted = sip.isdeleted
   elif QT_API == QT_API_PYSIDE2:
-    from PySide2 import QtCore, QtGui, QtWidgets, QtQuick, QtQml, __version__
     import shiboken2
+    from PySide2 import QtCore, QtGui, QtQml, QtQuick, QtWidgets, __version__
 
     def _isdeleted(obj):
       return not shiboken2.isValid(obj)
@@ -126,8 +126,8 @@ def _setup_pyqt4():
           sip.setapi(_sip_api, api)
         except ValueError:
           pass
-    from PyQt4 import QtCore, QtGui
     import sip  # Always succeeds *after* importing PyQt4.
+    from PyQt4 import QtCore, QtGui
     __version__ = QtCore.PYQT_VERSION_STR
     # PyQt 4.6 introduced getSaveFileNameAndFilter:
     # https://riverbankcomputing.com/news/pyqt-46
@@ -142,8 +142,9 @@ def _setup_pyqt4():
   if QT_API == QT_API_PYQTv2:
     _setup_pyqt4_internal(api=2)
   elif QT_API == QT_API_PYSIDE:
-    from PySide import QtCore, QtGui, __version__, __version_info__
     import shiboken
+    from PySide import QtCore, QtGui, __version__, __version_info__
+
     # PySide 1.0.3 fixed the following:
     # https://srinikom.github.io/pyside-bz-archive/809.html
     if __version_info__ < (1, 0, 3):

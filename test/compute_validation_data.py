@@ -4,7 +4,7 @@ import utils
 
 import numpy as np
 
-from reduced_model.reduced_model import ModelReducer, Location
+from reduced_model.reduced_model import Location, ModelReducer
 
 
 def compute(orders):

@@ -2,11 +2,12 @@ import os
 from enum import Enum
 from typing import Callable, Tuple, Union
 
+import utils
+
 import numpy as np
 from control.modelsimp import balred
 from control.statesp import StateSpace
 from loguru import logger
-from rich.console import Console
 from rich.progress import track
 from scipy.linalg import inv
 from scipy.sparse import csc_matrix, csr_matrix
@@ -14,8 +15,6 @@ from scipy.sparse import hstack as sparse_hstack
 from scipy.sparse.linalg import inv as sparse_inv
 
 import reduced_model.matrix_reader as mr
-
-cnsl = Console()
 
 
 def reduce_model(order: int, A: csc_matrix, B: csc_matrix, J: csc_matrix):
@@ -25,7 +24,7 @@ def reduce_model(order: int, A: csc_matrix, B: csc_matrix, J: csc_matrix):
     reduced_system = original_system
     logger.info('Model reduction을 시행하지 않습니다.')
   else:
-    with cnsl.status('Reducing Model'):
+    with utils.console.status('Reducing Model'):
       reduced_system = balred(sys=original_system, orders=order)
 
   reduced_order = reduced_system.A.shape[0]
@@ -77,14 +76,12 @@ class ModelReducer:
   def order(self, value: int):
     self._order = value
 
-  def read_matrices(
-      self,
-      damping: Union[str, bytes, os.PathLike],
-      stiffness: Union[str, bytes, os.PathLike],
-      internal_load: Union[str, bytes, os.PathLike],
-      external_load: Union[str, bytes, os.PathLike],
-      max_node=None,
-  ):
+  def read_matrices(self,
+                    damping: Union[str, bytes, os.PathLike],
+                    stiffness: Union[str, bytes, os.PathLike],
+                    internal_load: Union[str, bytes, os.PathLike],
+                    external_load: Union[str, bytes, os.PathLike],
+                    max_node=None):
     reader = mr.SystemMatricesReader(damping=damping,
                                      stiffness=stiffness,
                                      internal_load=internal_load,
@@ -210,20 +207,21 @@ class ModelReducer:
     Parameters
     ----------
     dt : float
-        delta time [sec]
+        Delta time [sec]
     time_step : int
-        total time steps
+        Total time steps
     initial_temperature : float, optional
-        initial temperature [ºC]
+        Initial temperature [ºC]
     callback : Callable[[np.ndarray], None], optional
-        callback function for each time step (f: results(<np.ndarray>) -> None)
+        Callback function for each time step (f: results(<np.ndarray>) -> None)
     reduced_system : bool, optional
-        if false, use original system
+        If false, use original system
 
     Returns
     -------
     np.ndarray
-        temperature of each location (shape: (time step, number of target locations))
+        Temperature of each location
+        (shape: (time step, number of target locations)).
 
     Raises
     ------
@@ -233,8 +231,9 @@ class ModelReducer:
     References
     ----------
     [1] Choi, J.-S., Kim, C.-M., Jang, H.-I., & Kim, E.-J. (2021).
-    Detailed and fast calculation of wall surface temperatures near thermal bridge area.
-    Case Studies in Thermal Engineering, 25, 100936. https://doi.org/10.1016/j.csite.2021.100936
+    Detailed and fast calculation of wall surface temperatures near thermal
+    bridge area. Case Studies in Thermal Engineering, 25, 100936.
+    https://doi.org/10.1016/j.csite.2021.100936
     """
     self._check_environment_variables()
 

@@ -2,7 +2,7 @@ import utils
 
 import numpy as np
 
-from reduced_model import ModelReducer, Location
+from reduced_model import Location, ModelReducer
 
 if __name__ == '__main__':
   model = ModelReducer(order=50)

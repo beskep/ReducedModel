@@ -1,7 +1,7 @@
 import utils
 
-import scipy.io
 import numpy as np
+import scipy.io
 
 if __name__ == '__main__':
   mat: dict = scipy.io.loadmat(

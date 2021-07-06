@@ -4,12 +4,14 @@ Render to qtquick from agg.
 
 import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from .backend_qtquick import (QtCore, QtGui, FigureCanvasQtQuick)
+
+from .backend_qtquick import FigureCanvasQtQuick, QtCore, QtGui
 
 
 class FigureCanvasQtQuickAgg(FigureCanvasAgg, FigureCanvasQtQuick):
-  """ This class customizes the FigureCanvasQtQuick for Agg
-    """
+  """
+  This class customizes the FigureCanvasQtQuick for Agg
+  """
 
   def __init__(self, figure=None, parent=None):
     super().__init__(figure=figure, parent=parent)
@@ -17,10 +19,10 @@ class FigureCanvasQtQuickAgg(FigureCanvasAgg, FigureCanvasQtQuick):
 
   def paint(self, p):
     """
-        Copy the image from the Agg canvas to the qt.drawable.
-        In Qt, all drawing should be done inside of here when a widget is
-        shown onscreen.
-        """
+    Copy the image from the Agg canvas to the qt.drawable.
+    In Qt, all drawing should be done inside of here when a widget is
+    shown onscreen.
+    """
     self._draw_idle()  # Only does something if a draw is pending.
 
     # if the canvas does not have a renderer, then give up and wait for
@@ -85,8 +87,8 @@ class FigureCanvasQtQuickAgg(FigureCanvasAgg, FigureCanvasQtQuick):
 
   def blit(self, bbox=None):
     """
-        Blit the region in bbox
-        """
+    Blit the region in bbox
+    """
     # If bbox is None, blit the entire canvas. Otherwise
     # blit only the area defined by the bbox.
     if bbox is None and self.figure:
