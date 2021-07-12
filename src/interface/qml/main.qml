@@ -43,7 +43,7 @@ ApplicationWindow {
         }
 
         TabButton {
-            text : qsTr('Image')
+            text : qsTr('Temperature')
             Material.accent : '#ffffff'
         }
 
@@ -77,8 +77,8 @@ ApplicationWindow {
                 Layout.fillWidth : true
             }
 
-            ClickableImage {
-                id : clickable_image
+            Temperature {
+                id : temperature
                 Layout.fillHeight : true
                 Layout.fillWidth : true
             }

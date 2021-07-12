@@ -7,6 +7,7 @@ from loguru import logger
 from PyQt5 import QtCore
 
 import reduced_model as rm
+from misc.temperature import read_temperature
 
 from .base_controller import BaseController, popup
 
@@ -87,6 +88,18 @@ class Controller(BaseController):
       self._win.show_popup('Success', '행렬 로드 완료.')
 
     self.update_model_state()
+
+  @QtCore.Slot(str)
+  def read_temperature(self, message: str):
+    loc, path = message.split('|')
+
+    try:
+      df = read_temperature(path=path)
+    except (ValueError, OSError, RuntimeError):
+      logger.exception('온도 파일 로드 실패')
+      return
+
+    print(df)
 
   @popup
   def _reduce_model(self):

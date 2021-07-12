@@ -1,3 +1,4 @@
+import context
 import utils
 
 import numpy as np
@@ -9,7 +10,7 @@ row = np.array([0, 0, 1, 2, 2, 2])
 col = np.array([0, 2, 2, 0, 1, 2])
 data = np.array([1, 2, 3, 4, 5, 6])
 
-path = utils.TEST_DIR.joinpath('test_matrix.txt')
+path = utils.ROOT_DIR.joinpath('test/test_matrix.txt')
 DATA_DIR = utils.ROOT_DIR.joinpath('data')
 
 

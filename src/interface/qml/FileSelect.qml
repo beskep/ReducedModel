@@ -26,6 +26,7 @@ Item {
                 width : parent.width
                 spacing : 10
 
+                // Delete button
                 Button {
                     id : list_view_delete_button
                     implicitWidth : 40
@@ -39,6 +40,7 @@ Item {
                     }
                 }
 
+                // Path text field
                 TextField {
                     id : list_view_text
                     objectName : 'path'
@@ -49,6 +51,7 @@ Item {
                     // readOnly : true
                 }
 
+                // File type combo box
                 ComboBox {
                     id : list_view_combobox
                     objectName : 'type'
@@ -185,7 +188,6 @@ Item {
                 anchors.margins : 10
                 clip : true
 
-                // ScrollBar.vertical.policy : ScrollBar.AlwaysOn
                 ScrollBar.vertical.policy : ScrollBar.AsNeeded
                 ScrollBar.horizontal.policy : ScrollBar.AlwaysOff
 
