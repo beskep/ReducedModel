@@ -2,7 +2,7 @@ import os
 from collections import deque
 from functools import cached_property
 from pathlib import Path
-from typing import Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -30,8 +30,8 @@ class MatrixReader:
   DELIMITER = ','
 
   def __init__(self,
-               path: Union[str, bytes, os.PathLike, None],
-               shape=None,
+               path: Union[str, os.PathLike, None],
+               shape: Optional[Tuple[int, int]] = None,
                is_symmetric=False) -> None:
     self._path = Path(path) if path else None
     self._shape = shape
@@ -42,7 +42,7 @@ class MatrixReader:
     return self._path
 
   @path.setter
-  def path(self, value: Union[str, bytes, os.PathLike]):
+  def path(self, value: Union[str, os.PathLike]):
     self._path = Path(value)
 
   @classmethod
@@ -87,7 +87,7 @@ class MatrixReader:
 
     return symm_value, symm_row, symm_col
 
-  def read_matrix(self):
+  def read_matrix(self) -> csc_matrix:
     if not (self._path and self._path.exists()):
       raise FileNotFoundError(self._path)
 
@@ -128,9 +128,12 @@ class MatrixReader:
 
     return mat
 
-  @cached_property
-  def matrix(self):
-    return self.read_matrix()
+
+def read_matrix(path: Union[str, os.PathLike],
+                shape: Optional[Tuple[int, int]] = None,
+                is_symmetric=False) -> csc_matrix:
+  return MatrixReader(path=path, shape=shape,
+                      is_symmetric=is_symmetric).read_matrix()
 
 
 class SystemMatricesReader:
@@ -139,10 +142,10 @@ class SystemMatricesReader:
   # _FNAME_LOAD = 'LOAD'
 
   def __init__(self,
-               damping: Union[str, bytes, os.PathLike],
-               stiffness: Union[str, bytes, os.PathLike],
-               internal_load: Union[str, bytes, os.PathLike],
-               external_load: Union[str, bytes, os.PathLike],
+               damping: Union[str, os.PathLike],
+               stiffness: Union[str, os.PathLike],
+               internal_load: Union[str, os.PathLike],
+               external_load: Union[str, os.PathLike],
                max_node=None) -> None:
     self._damping = damping
     self._stiffness = stiffness
@@ -190,28 +193,22 @@ class SystemMatricesReader:
 
   @cached_property
   def damping_matrix(self):
-    reader = MatrixReader(path=self._damping,
-                          shape=(self._max_node, self._max_node))
-    return reader.read_matrix()
+    return read_matrix(path=self._damping, shape=(self.max_node, self.max_node))
 
   @cached_property
   def stiffness_matrix(self):
-    reader = MatrixReader(path=self._stiffness,
-                          shape=(self._max_node, self._max_node),
-                          is_symmetric=True)
-    return reader.read_matrix()
+    return read_matrix(path=self._stiffness,
+                       shape=(self.max_node, self.max_node),
+                       is_symmetric=True)
 
   @cached_property
   def internal_load_matrix(self):
-    reader = MatrixReader(path=self._internal_load, shape=(self._max_node, 1))
-    return reader.read_matrix()
+    return read_matrix(path=self._internal_load, shape=(self.max_node, 1))
 
   @cached_property
   def external_load_matrix(self):
-    reader = MatrixReader(path=self._external_load, shape=(self._max_node, 1))
-    return reader.read_matrix()
+    return read_matrix(path=self._external_load, shape=(self.max_node, 1))
 
-  @cached_property
   def load_matrices(self):
     return self.internal_load_matrix, self.external_load_matrix
 

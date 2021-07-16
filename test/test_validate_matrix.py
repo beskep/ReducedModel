@@ -56,4 +56,4 @@ def test_validate_matrix():
 
 
 if __name__ == '__main__':
-  pytest.main([])
+  pytest.main(['-vv', '-k', 'test_validate_matrix'])

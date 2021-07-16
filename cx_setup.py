@@ -7,7 +7,7 @@ base = None
 # if sys.platform == 'win32':
 #   base = 'Win32GUI'
 
-include_files = ['src']
+include_files = ['src', 'data']
 includes = [
     'loguru',
     'rich',

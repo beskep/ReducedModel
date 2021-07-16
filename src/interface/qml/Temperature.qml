@@ -49,13 +49,13 @@ Item {
                 width : parent.width
 
                 IR {
-                    title : 'Temperature on mode 1'
+                    title : 'Temperature of node 1'
                 }
                 IR {
-                    title : 'Temperature on mode 2'
+                    title : 'Temperature of node 2'
                 }
                 IR {
-                    title : 'Temperature on mode 3'
+                    title : 'Temperature of node 3'
                 }
             }
         }

@@ -4,7 +4,8 @@ import utils
 import numpy as np
 import pytest
 
-from reduced_model.matrix_reader import MatrixReader, SystemMatricesReader
+from reduced_model.matrix_reader import (MatrixReader, SystemMatricesReader,
+                                         read_matrix)
 
 row = np.array([0, 0, 1, 2, 2, 2])
 col = np.array([0, 2, 2, 0, 1, 2])
@@ -28,15 +29,18 @@ def test_count_skip_rows():
 
 
 def test_read_matrix():
-  mtx_read = MatrixReader(path).read_matrix()
   mtx = np.array([[1, 0, 2], [0, 0, 3], [4, 5, 6]])
 
-  assert np.all(mtx == mtx_read)
+  mtx_read1 = MatrixReader(path).read_matrix()
+  mtx_read2 = read_matrix(path)
+
+  assert np.all(mtx == mtx_read1)
+  assert np.all(mtx == mtx_read2)
 
 
 def test_read_symmetric_matrix():
   path = DATA_DIR.joinpath('test_case_simple/simple_modelingTHERM1_STIF1.mtx')
-  mtx = MatrixReader(path, is_symmetric=True).matrix.toarray()
+  mtx = MatrixReader(path, is_symmetric=True).read_matrix().toarray()
 
   assert np.allclose(mtx, mtx.T, rtol=0)
 
@@ -53,6 +57,7 @@ def test_system_matrices_read():
 
 
 def test_system_matrices_error():
+  # pylint: disable=pointless-statement
   matrices = SystemMatricesReader(damping=path,
                                   stiffness='./nonexist',
                                   internal_load=None,
@@ -78,5 +83,4 @@ def test_find_max_node():
 
 
 if __name__ == '__main__':
-  # write_test_matrix()
-  pytest.main([])
+  pytest.main(['-vv', '-k', 'test_matrix_reader'])

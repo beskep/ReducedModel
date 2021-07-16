@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 from loguru import logger
 from rich.console import Console
@@ -16,7 +16,7 @@ if _SRC_DIR not in sys.path:
 console = Console()
 
 
-def set_logger(level: Optional[Union[int, str]] = None):
+def set_logger(level: Union[int, str, None] = None):
   logger.remove()
 
   if level is None:
@@ -25,7 +25,7 @@ def set_logger(level: Optional[Union[int, str]] = None):
     else:
       level = 'INFO'
 
-  rich_handler = RichHandler(show_time=True, console=console)
+  rich_handler = RichHandler(console=console, log_time_format='[%y-%m-%d %X]')
   logger.add(rich_handler, level=level, format='{message}', enqueue=True)
   logger.add('rm.log',
              level='DEBUG',
