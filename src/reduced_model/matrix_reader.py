@@ -1,3 +1,11 @@
+"""
+ABAQUS에서 추출한 행렬 파일 해석
+
+C = Damping = Capacitance
+K = Stiffness = Conductance (symmetric)
+L = Load = Solicitation
+"""
+
 import os
 from collections import deque
 from functools import cached_property
@@ -6,10 +14,6 @@ from typing import Optional, Tuple, Union
 
 import numpy as np
 from scipy.sparse import csc_matrix
-
-# Damping -> C
-# Stiffness -> K
-# Load -> L
 
 
 def _get_node_number(line: str):

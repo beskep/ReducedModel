@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.api.types import is_numeric_dtype
 
-from misc.temperature import read_temperature
+from temperature import read_temperature
 
 DATA_DIR = utils.ROOT_DIR.joinpath('data')
 
