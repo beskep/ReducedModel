@@ -140,26 +140,19 @@ def read_matrix(path: Union[str, os.PathLike],
                       is_symmetric=is_symmetric).read_matrix()
 
 
-class SystemMatricesReader:
-  # _FNAME_DAMPING = 'DMPV'
-  # _FNAME_STIFFNESS = 'STIF'
-  # _FNAME_LOAD = 'LOAD'
+class MatricesReader:
+  """
+  개별 matrix 파일에 최대 노드 번호가 누락되었을 경우에 대비해서,
+  모든 파일로부터 max_node를 먼저 읽고 각 matrix의 shape을 결정
+  """
 
-  def __init__(self,
-               damping: Union[str, os.PathLike],
-               stiffness: Union[str, os.PathLike],
-               internal_load: Union[str, os.PathLike],
-               external_load: Union[str, os.PathLike],
-               max_node=None) -> None:
-    self._damping = damping
-    self._stiffness = stiffness
-    self._internal_load = internal_load
-    self._external_load = external_load
-
+  def __init__(self, files=None, max_node=None) -> None:
     if max_node is not None:
       self._max_node = max_node
     else:
-      files = [damping, stiffness, internal_load, external_load]
+      if files is None:
+        raise ValueError
+
       self._max_node = max([self._find_max_node(x) for x in files])
 
   @property
@@ -195,23 +188,63 @@ class SystemMatricesReader:
 
     return max_node
 
+  def read_matrix(
+      self,
+      path: Union[str, os.PathLike],
+      is_square: bool,
+      is_symmetric: bool,
+  ) -> csc_matrix:
+    if not is_square and is_symmetric:
+      raise ValueError
+
+    shape = (self.max_node, self.max_node) if is_square else (self.max_node, 1)
+    matrix = read_matrix(path=path, shape=shape, is_symmetric=is_symmetric)
+
+    return matrix
+
+
+class SystemMatricesReader(MatricesReader):
+  # _FNAME_DAMPING = 'DMPV'
+  # _FNAME_STIFFNESS = 'STIF'
+  # _FNAME_LOAD = 'LOAD'
+
+  def __init__(self,
+               damping: Union[str, os.PathLike],
+               stiffness: Union[str, os.PathLike],
+               internal_load: Union[str, os.PathLike],
+               external_load: Union[str, os.PathLike],
+               max_node=None) -> None:
+    self._damping = damping
+    self._stiffness = stiffness
+    self._internal_load = internal_load
+    self._external_load = external_load
+
+    super().__init__(files=[damping, stiffness, internal_load, external_load],
+                     max_node=max_node)
+
   @cached_property
   def damping_matrix(self):
-    return read_matrix(path=self._damping, shape=(self.max_node, self.max_node))
+    return self.read_matrix(path=self._damping,
+                            is_square=True,
+                            is_symmetric=False)
 
   @cached_property
   def stiffness_matrix(self):
-    return read_matrix(path=self._stiffness,
-                       shape=(self.max_node, self.max_node),
-                       is_symmetric=True)
+    return self.read_matrix(path=self._stiffness,
+                            is_square=True,
+                            is_symmetric=True)
 
   @cached_property
   def internal_load_matrix(self):
-    return read_matrix(path=self._internal_load, shape=(self.max_node, 1))
+    return self.read_matrix(path=self._internal_load,
+                            is_square=False,
+                            is_symmetric=False)
 
   @cached_property
   def external_load_matrix(self):
-    return read_matrix(path=self._external_load, shape=(self.max_node, 1))
+    return self.read_matrix(path=self._external_load,
+                            is_square=False,
+                            is_symmetric=False)
 
   def load_matrices(self):
     return self.internal_load_matrix, self.external_load_matrix

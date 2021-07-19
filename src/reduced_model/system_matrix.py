@@ -1,7 +1,10 @@
-from typing import List
+from pathlib import Path
+from typing import List, Union
 
 import numpy as np
 from scipy.sparse import csc_matrix
+
+from .matrix_reader import MatricesReader
 
 
 class MatrixH:
@@ -73,6 +76,25 @@ class MatrixH:
       raise ValueError
 
     return H
+
+  @classmethod
+  def from_files(
+      cls,
+      H: np.ndarray,
+      files: List[Union[str, Path]],
+      is_square: bool,
+      is_symmetric: bool,
+  ):
+    if len(files) != 3:
+      raise ValueError
+
+    mr = MatricesReader(files=files)
+    Ms = [
+        mr.read_matrix(f, is_square=is_square, is_symmetric=is_symmetric)
+        for f in files
+    ]
+
+    return cls(H=H, Ms=Ms)
 
   def matrix(self, h_interior: float, h_exterior: float) -> csc_matrix:
     return self.M0 + (h_interior * self.Mint) + (h_exterior * self.Mext)

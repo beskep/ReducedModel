@@ -34,15 +34,15 @@ def test_read_matrix():
   mtx_read1 = MatrixReader(path).read_matrix()
   mtx_read2 = read_matrix(path)
 
-  assert np.all(mtx == mtx_read1)
-  assert np.all(mtx == mtx_read2)
+  assert mtx == pytest.approx(mtx_read1.toarray())
+  assert mtx == pytest.approx(mtx_read2.toarray())
 
 
 def test_read_symmetric_matrix():
   path = DATA_DIR.joinpath('test_case_simple/simple_modelingTHERM1_STIF1.mtx')
   mtx = MatrixReader(path, is_symmetric=True).read_matrix().toarray()
 
-  assert np.allclose(mtx, mtx.T, rtol=0)
+  assert mtx == pytest.approx(mtx.T)
 
 
 def test_system_matrices_read():
@@ -53,7 +53,7 @@ def test_system_matrices_read():
   mtx_read = matrices.damping_matrix
   mtx = np.array([[1, 0, 2], [0, 0, 3], [4, 5, 6]])
 
-  assert np.all(mtx == mtx_read)
+  assert mtx == pytest.approx(mtx_read.toarray())
 
 
 def test_system_matrices_error():
