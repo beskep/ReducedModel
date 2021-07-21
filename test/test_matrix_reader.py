@@ -40,7 +40,7 @@ def test_read_matrix():
 
 def test_read_symmetric_matrix():
   path = DATA_DIR.joinpath('test_case_simple/simple_modelingTHERM1_STIF1.mtx')
-  mtx = MatrixReader(path, is_symmetric=True).read_matrix().toarray()
+  mtx = MatrixReader(path, symmetric=True).read_matrix().toarray()
 
   assert mtx == pytest.approx(mtx.T)
 

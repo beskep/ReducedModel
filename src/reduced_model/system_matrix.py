@@ -18,7 +18,12 @@ class MatrixH:
 
     계산에 세 케이스의 행렬이 필요함.
 
-    M(h_int, h_ext) = M0 + h_int * Mint + h_ext * Mext
+    M(hi, he) = M0 + (hi * Mi) + (he * Me)
+    hi: interior h (대류열전달계수)
+    he: exterior h
+    Mi: 행렬의 hi 성분
+    Me: 행렬의 he 성분
+    M0: hi, he와 독립적인 나머지 성분
 
     Parameters
     ----------
@@ -38,8 +43,6 @@ class MatrixH:
 
             ` [hi_3, he_3]]`
 
-        `hi`: interior h (대류열전달계수)
-        `he`: exterior h
 
     Ms : List[csc_matrix]
         h에 상응하는 M 행렬 목록
@@ -56,9 +59,9 @@ class MatrixH:
       raise np.linalg.LinAlgError(f'{e}: 주어진 H로 행렬을 추정할 수 없습니다.')
 
     # (invH[i, 1] * M1) + (invH[i, 2] * M2) + (invH[i, 3] * M3)
-    self.Mint: csc_matrix = sum((invH[0, x] * Ms[x] for x in range(3)))
-    self.Mext: csc_matrix = sum((invH[1, x] * Ms[x] for x in range(3)))
-    self.M0: csc_matrix = sum((invH[2, x] * Ms[x] for x in range(3)))
+    self._Mi: csc_matrix = sum((invH[0, x] * Ms[x] for x in range(3)))
+    self._Me: csc_matrix = sum((invH[1, x] * Ms[x] for x in range(3)))
+    self._M0: csc_matrix = sum((invH[2, x] * Ms[x] for x in range(3)))
 
   @staticmethod
   def _checkH(H: np.ndarray):
@@ -90,11 +93,30 @@ class MatrixH:
 
     mr = MatricesReader(files=files)
     Ms = [
-        mr.read_matrix(f, is_square=is_square, is_symmetric=is_symmetric)
+        mr.read_matrix(f, square=is_square, symmetric=is_symmetric)
         for f in files
     ]
 
     return cls(H=H, Ms=Ms)
 
-  def matrix(self, h_interior: float, h_exterior: float) -> csc_matrix:
-    return self.M0 + (h_interior * self.Mint) + (h_exterior * self.Mext)
+  def matrix(self, hi: float, he: float) -> csc_matrix:
+    """
+    실내외 대류열전달계수에 따른 행렬 계산
+
+    Parameters
+    ----------
+    hi : float
+        Interior h
+    he : float
+        Exterior h
+
+    Returns
+    -------
+    csc_matrix
+    """
+    return self._M0 + (hi * self._Mi) + (he * self._Me)
+
+  def set_fluid_temperature(self, temperature: float):
+    self._M0 /= temperature
+    self._Mi /= temperature
+    self._Me /= temperature

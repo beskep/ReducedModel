@@ -36,10 +36,10 @@ class MatrixReader:
   def __init__(self,
                path: Union[str, os.PathLike, None],
                shape: Optional[Tuple[int, int]] = None,
-               is_symmetric=False) -> None:
+               symmetric=False) -> None:
     self._path = Path(path) if path else None
     self._shape = shape
-    self._is_symmetric = is_symmetric
+    self._symmetric = symmetric
 
   @property
   def path(self):
@@ -97,7 +97,7 @@ class MatrixReader:
 
     # sparse matrix 형태 파일 읽기
     skip_row = self._count_skip_rows(self._path)
-    raw: np.ndarray = np.loadtxt(fname=self._path,
+    raw: np.ndarray = np.loadtxt(fname=self._path.as_posix(),
                                  delimiter=self.DELIMITER,
                                  skiprows=skip_row)
 
@@ -119,7 +119,7 @@ class MatrixReader:
       raise ValueError
 
     # stiffness matrix (symmetric임)인 경우, lower/upper triangle 복사
-    if self._is_symmetric:
+    if self._symmetric:
       value, row, col = self._symmetric_index(value, row, col)
 
     # matrix shape 지정
@@ -135,9 +135,8 @@ class MatrixReader:
 
 def read_matrix(path: Union[str, os.PathLike],
                 shape: Optional[Tuple[int, int]] = None,
-                is_symmetric=False) -> csc_matrix:
-  return MatrixReader(path=path, shape=shape,
-                      is_symmetric=is_symmetric).read_matrix()
+                symmetric=False) -> csc_matrix:
+  return MatrixReader(path=path, shape=shape, symmetric=symmetric).read_matrix()
 
 
 class MatricesReader:
@@ -191,14 +190,18 @@ class MatricesReader:
   def read_matrix(
       self,
       path: Union[str, os.PathLike],
-      is_square: bool,
-      is_symmetric: bool,
+      square: bool,
+      symmetric=False,
   ) -> csc_matrix:
-    if not is_square and is_symmetric:
+    if not square and symmetric:
       raise ValueError
 
-    shape = (self.max_node, self.max_node) if is_square else (self.max_node, 1)
-    matrix = read_matrix(path=path, shape=shape, is_symmetric=is_symmetric)
+    if square:
+      shape = (self.max_node, self.max_node)
+    else:
+      shape = (self.max_node, 1)
+
+    matrix = read_matrix(path=path, shape=shape, symmetric=symmetric)
 
     return matrix
 
@@ -224,27 +227,23 @@ class SystemMatricesReader(MatricesReader):
 
   @cached_property
   def damping_matrix(self):
-    return self.read_matrix(path=self._damping,
-                            is_square=True,
-                            is_symmetric=False)
+    return self.read_matrix(path=self._damping, square=True, symmetric=False)
 
   @cached_property
   def stiffness_matrix(self):
-    return self.read_matrix(path=self._stiffness,
-                            is_square=True,
-                            is_symmetric=True)
+    return self.read_matrix(path=self._stiffness, square=True, symmetric=True)
 
   @cached_property
   def internal_load_matrix(self):
     return self.read_matrix(path=self._internal_load,
-                            is_square=False,
-                            is_symmetric=False)
+                            square=False,
+                            symmetric=False)
 
   @cached_property
   def external_load_matrix(self):
     return self.read_matrix(path=self._external_load,
-                            is_square=False,
-                            is_symmetric=False)
+                            square=False,
+                            symmetric=False)
 
   def load_matrices(self):
     return self.internal_load_matrix, self.external_load_matrix

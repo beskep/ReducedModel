@@ -6,50 +6,10 @@ import utils
 
 import numpy as np
 import pytest
+from files import Files, Matrices
 
 import reduced_model.matrix_reader as mr
 import reduced_model.system_matrix as sm
-
-data_dir = utils.ROOT_DIR.joinpath('data/optimize')
-
-
-class Matrices:
-  K = 'K'
-  Li = 'Lin'
-  Le = 'Lout'
-
-  all_ = [K, Li, Le]
-
-
-class Files:
-  _matrices = {
-      (1, 1): '_o_1',  # (h_interior, h_exterior): matrix
-      (2, 2): '_o_2',
-      (1, 2): '_o_3',
-      (2, 1): '_o_4',
-  }
-
-  @classmethod
-  def matrices(cls, m):
-    if m not in Matrices.all_:
-      raise ValueError
-
-    return {key: m + value for key, value in cls._matrices.items()}
-
-  @classmethod
-  def get_path(cls, m: str, hi: int, he: int):
-    matrices = cls.matrices(m)
-    name = matrices[(hi, he)]
-    path = data_dir.joinpath(f'{name}.txt')
-
-    return path
-
-  @classmethod
-  def read_matrix(cls, m: str, hi: int, he: int, symm):
-    path = cls.get_path(m, hi, he)
-    matrix = mr.read_matrix(path=path, is_symmetric=symm)
-
-    return matrix
 
 
 class TestHypothesis:
@@ -142,7 +102,7 @@ class TestMatrixH:
     H = np.array([[1, 1], [1, 2], [2, 1]], dtype=float)
     mh = sm.MatrixH(H=H, Ms=[M11, M12, M21])
 
-    M22e = mh.matrix(h_interior=2.0, h_exterior=2.0)
+    M22e = mh.matrix(hi=2.0, he=2.0)
 
     assert np.allclose(M22.toarray(), M22e.toarray())
 
@@ -158,7 +118,7 @@ class TestMatrixH:
                                is_square=symm,
                                is_symmetric=symm)
 
-    M22e = mh.matrix(h_interior=2.0, h_exterior=2.0)
+    M22e = mh.matrix(hi=2.0, he=2.0)
 
     assert np.allclose(M22.toarray(), M22e.toarray())
 
