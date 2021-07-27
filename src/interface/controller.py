@@ -1,4 +1,5 @@
 import multiprocessing as mp
+from typing import Optional
 
 import utils
 
@@ -24,7 +25,7 @@ class ModelReductionConsumer(QtCore.QThread):
   def __init__(self, parent=None) -> None:
     super().__init__(parent=parent)
 
-    self._queue: mp.Queue = None
+    self._queue: Optional[mp.Queue] = None
     self._res = None
 
   def set_queue(self, queue: mp.Queue):
@@ -34,6 +35,9 @@ class ModelReductionConsumer(QtCore.QThread):
     return self._res
 
   def run(self) -> None:
+    if self._queue is None:
+      raise ValueError
+
     while True:
       if not self._queue.empty():
         self._res = self._queue.get()
@@ -214,7 +218,7 @@ class Controller(BaseController):
     path = self.to_valid_path(path)
 
     if self._save_model(path):
-      self._win.show_popup('Success', '모델 저장 완료.')
+      self.win.show_popup('Success', '모델 저장 완료.')
 
   def read_model(self, path):
     path = self.to_valid_path(path)
@@ -239,7 +243,7 @@ class Controller(BaseController):
   def save_results(self, path: str):
     path = self.to_valid_path(path)
     if self._save_results(path):
-      self._win.show_popup('Success', '결과 저장 완료.')
+      self.win.show_popup('Success', '결과 저장 완료.')
 
   def clear_results(self):
     self._results = None

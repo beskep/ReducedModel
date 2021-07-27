@@ -9,11 +9,11 @@ exts = ['.py', '.qml']
 
 files = []
 for ext in exts:
-  files_ = (set(ROOT_DIR.rglob(f'*{ext}')) -
-            set(ROOT_DIR.rglob(f'dist/**/*{ext}')) -
-            set(ROOT_DIR.rglob(f'build/**/*{ext}')))
-  files_ = [f.relative_to(ROOT_DIR).as_posix() for f in files_]
-  files.extend(files_)
+  fs = (set(ROOT_DIR.rglob(f'*{ext}')) -
+        set(ROOT_DIR.rglob(f'dist/**/*{ext}')) -
+        set(ROOT_DIR.rglob(f'build/**/*{ext}')))
+  fl = [f.relative_to(ROOT_DIR).as_posix() for f in fs]
+  files.extend(fl)
 
 files.sort()
 

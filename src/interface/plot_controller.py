@@ -1,4 +1,5 @@
 from itertools import cycle, product
+from typing import Optional
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -26,7 +27,7 @@ class PlotController(QtCore.QObject):
     self._app: QtGui.QGuiApplication = None
     self._figure: Figure = None
     self._axes: Axes = None
-    self._canvas: FigureCanvasQtQuickAgg = None
+    self._canvas: Optional[FigureCanvasQtQuickAgg] = None
 
     self._lines = []
 
@@ -64,6 +65,9 @@ class PlotController(QtCore.QObject):
     self._axes.legend(self._lines, line_names)
 
   def update_plot(self, values: np.ndarray):
+    if self._canvas is None:
+      raise ValueError
+
     if not self._lines:
       lines_count = values.shape[1]
       self._init_plot(line_names=[f'loc {x+1}' for x in range(lines_count)])

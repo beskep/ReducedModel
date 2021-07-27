@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Optional
 
 import numpy as np
 from loguru import logger
@@ -74,10 +75,17 @@ class BaseController(QtCore.QObject):
   def __init__(self) -> None:
     super().__init__()
 
-    self._win: _Window = None
-    self._plot_controller: PlotController = None
+    self._win: Optional[_Window] = None
+    self._plot_controller: Optional[PlotController] = None
     self._files = dict()
     self._options = dict()
+
+  @property
+  def win(self) -> _Window:
+    if self._win is None:
+      raise ValueError('win not set')
+
+    return self._win
 
   def set_window(self, win: QtGui.QWindow):
     self._win = _Window(win)
@@ -104,15 +112,9 @@ class BaseController(QtCore.QObject):
     logger.log(level, message)
 
   @QtCore.Slot(str)
-  def image_coord(self, value):
-    # TODO
-    logger.debug(value)
-
-  @QtCore.Slot(str)
   def select_file_and_type(self, value: str):
     file, index = value.split('|')
-    index = int(index)
-    file_type = self.FILE_TYPES[index]
+    file_type = self.FILE_TYPES[int(index)]
     self._files[file] = file_type
 
     logger.debug('{}: `{}`', file_type, file)

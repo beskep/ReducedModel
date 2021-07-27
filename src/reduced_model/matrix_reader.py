@@ -207,9 +207,6 @@ class MatricesReader:
 
 
 class SystemMatricesReader(MatricesReader):
-  # _FNAME_DAMPING = 'DMPV'
-  # _FNAME_STIFFNESS = 'STIF'
-  # _FNAME_LOAD = 'LOAD'
 
   def __init__(self,
                damping: Union[str, os.PathLike],

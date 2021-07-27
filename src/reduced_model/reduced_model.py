@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Callable, Tuple, Union
+from typing import Callable, Optional, Tuple, Union
 
 import utils
 
@@ -56,17 +56,17 @@ class ModelReducer:
     self._stiffness_mtx: np.ndarray = None
     self._internal_load_mtx: np.ndarray = None
     self._external_load_mtx: np.ndarray = None
-    self._max_node: int = None
+    self._max_node: Optional[int] = None
 
-    self._internal_temp_fn = None
-    self._external_temp_fn = None
-    self._internal_fluid_temp: float = None
-    self._external_fluid_temp: float = None
+    self._internal_temp_fn: Optional[Callable] = None
+    self._external_temp_fn: Optional[Callable] = None
+    self._internal_fluid_temp: Optional[float] = None
+    self._external_fluid_temp: Optional[float] = None
 
     self._targets: np.ndarray = None
 
     self._reduced_system: StateSpace = None
-    self._reduced_order: int = None
+    self._reduced_order: Optional[int] = None
 
   @property
   def order(self):
@@ -77,10 +77,10 @@ class ModelReducer:
     self._order = value
 
   def read_matrices(self,
-                    damping: Union[str, bytes, os.PathLike],
-                    stiffness: Union[str, bytes, os.PathLike],
-                    internal_load: Union[str, bytes, os.PathLike],
-                    external_load: Union[str, bytes, os.PathLike],
+                    damping: Union[str, os.PathLike],
+                    stiffness: Union[str, os.PathLike],
+                    internal_load: Union[str, os.PathLike],
+                    external_load: Union[str, os.PathLike],
                     max_node=None):
     reader = mr.SystemMatricesReader(damping=damping,
                                      stiffness=stiffness,
