@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Callable, Optional, Tuple, Union
 
 import utils
+from utils import StrPath
 
 import numpy as np
 from control.modelsimp import balred
@@ -77,10 +78,10 @@ class ModelReducer:
     self._order = value
 
   def read_matrices(self,
-                    damping: Union[str, os.PathLike],
-                    stiffness: Union[str, os.PathLike],
-                    internal_load: Union[str, os.PathLike],
-                    external_load: Union[str, os.PathLike],
+                    damping: StrPath,
+                    stiffness: StrPath,
+                    internal_load: StrPath,
+                    external_load: StrPath,
                     max_node=None):
     reader = mr.SystemMatricesReader(damping=damping,
                                      stiffness=stiffness,

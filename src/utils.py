@@ -1,4 +1,5 @@
 import sys
+from os import PathLike
 from pathlib import Path
 from typing import Union
 
@@ -14,6 +15,7 @@ if _SRC_DIR not in sys.path:
   sys.path.append(_SRC_DIR)
 
 console = Console()
+StrPath = Union[str, PathLike[str]]
 
 
 def set_logger(level: Union[int, str, None] = None):

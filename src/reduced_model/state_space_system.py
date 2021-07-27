@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from itertools import chain
-from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import utils
+from utils import StrPath
 
 import numpy as np
 from control.modelsimp import balred
@@ -13,8 +13,21 @@ from scipy import sparse
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import inv as sparse_inv
 
-from .matrix_reader import MatricesReader
+from .matrix_reader import MatricesReader, read_matrix
 from .system_matrix import MatrixH
+
+
+def _nodes(matrix: Union[csc_matrix, StrPath],
+           reader: Optional[MatricesReader] = None) -> csc_matrix:
+  if not isinstance(matrix, csc_matrix):
+    if reader is None:
+      matrix = read_matrix(path=matrix, symmetric=False)
+    else:
+      matrix = reader.read_matrix(path=matrix, square=False)
+
+  matrix /= matrix.data.size  # 0이 아닌 node 개수로 나눔. 왜인지는 모름...
+
+  return matrix
 
 
 def _state_space(A: csc_matrix, B: csc_matrix, J: csc_matrix):
@@ -64,20 +77,21 @@ class System:
   @classmethod
   def from_files(
       cls,
-      C: Path,
-      K: Path,
-      Li: Path,
-      Le: Path,
+      C: StrPath,
+      K: StrPath,
+      Li: StrPath,
+      Le: StrPath,
       Ti: float,
       Te: float,
-      Ns: List[Path],
+      Ns: List[StrPath],
   ):
-    reader = MatricesReader(files=[C, K, Li, Le] + Ns)
-    C_ = reader.read_matrix(path=C, square=True)
-    K_ = reader.read_matrix(path=K, square=True, symmetric=True)
-    Li_ = reader.read_matrix(path=Li, square=False)
-    Le_ = reader.read_matrix(path=Le, square=False)
-    Ns_ = [reader.read_matrix(path=x, square=False) for x in Ns]
+    mr = MatricesReader(files=[C, K, Li, Le] + Ns)
+
+    C_ = mr.read_matrix(path=C, square=True)
+    K_ = mr.read_matrix(path=K, square=True, symmetric=True)
+    Li_ = mr.read_matrix(path=Li, square=False)
+    Le_ = mr.read_matrix(path=Le, square=False)
+    Ns_ = [_nodes(matrix=x, reader=mr) for x in Ns]
 
     return cls(C=C_, K=K_, LiTi=(Li_ / Ti), LeTe=(Le_ / Te), Ns=Ns_)
 
@@ -134,33 +148,27 @@ class SystemH:
   def from_files(
       cls,
       H: np.ndarray,
-      C: Path,
-      K: List[Path],
-      Li: List[Path],
-      Le: List[Path],
+      C: StrPath,
+      K: List[StrPath],
+      Li: List[StrPath],
+      Le: List[StrPath],
       Ti: float,
       Te: float,
-      Ns: List[Path],
+      Ns: List[StrPath],
   ):
-    # TODO Path typing 문제 해결
+    mr = MatricesReader(files=chain([C], K, Li, Le))
 
-    reader = MatricesReader(files=chain([C], K, Li, Le))
+    Ks = [mr.read_matrix(path=x, square=True, symmetric=True) for x in K]
+    K_ = MatrixH(H=H, Ms=Ks)
 
-    Kmatrices = [
-        reader.read_matrix(path=x, square=True, symmetric=True) for x in K
-    ]
-    K_ = MatrixH(H=H, Ms=Kmatrices)
-
-    LiTi = MatrixH(H=H,
-                   Ms=[reader.read_matrix(path=x, square=False) for x in Li])
+    LiTi = MatrixH(H=H, Ms=[mr.read_matrix(path=x, square=False) for x in Li])
     LiTi.set_fluid_temperature(Ti)
 
-    LeTe = MatrixH(H=H,
-                   Ms=[reader.read_matrix(path=x, square=False) for x in Le])
+    LeTe = MatrixH(H=H, Ms=[mr.read_matrix(path=x, square=False) for x in Le])
     LeTe.set_fluid_temperature(Te)
 
-    C_ = reader.read_matrix(C, square=True)
-    Ns_ = [reader.read_matrix(path=x, square=False) for x in Ns]
+    C_ = mr.read_matrix(C, square=True)
+    Ns_ = [_nodes(matrix=x, reader=mr) for x in Ns]
 
     return cls(C=C_, K=K_, LiTi=LiTi, LeTe=LeTe, Ns=Ns_)
 

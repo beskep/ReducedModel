@@ -115,8 +115,8 @@ class TestMatrixH:
 
     mh = sm.MatrixH.from_files(H=H,
                                files=[Files.get_path(m, x[0], x[1]) for x in H],
-                               is_square=symm,
-                               is_symmetric=symm)
+                               square=symm,
+                               symmetric=symm)
 
     M22e = mh.matrix(hi=2.0, he=2.0)
 

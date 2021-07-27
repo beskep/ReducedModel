@@ -10,7 +10,9 @@ import os
 from collections import deque
 from functools import cached_property
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Iterable, Optional, Tuple
+
+from utils import StrPath
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -34,7 +36,7 @@ class MatrixReader:
   DELIMITER = ','
 
   def __init__(self,
-               path: Union[str, os.PathLike, None],
+               path: Optional[StrPath],
                shape: Optional[Tuple[int, int]] = None,
                symmetric=False) -> None:
     self._path = Path(path) if path else None
@@ -46,7 +48,7 @@ class MatrixReader:
     return self._path
 
   @path.setter
-  def path(self, value: Union[str, os.PathLike]):
+  def path(self, value: StrPath):
     self._path = Path(value)
 
   @classmethod
@@ -133,7 +135,7 @@ class MatrixReader:
     return mat
 
 
-def read_matrix(path: Union[str, os.PathLike],
+def read_matrix(path: StrPath,
                 shape: Optional[Tuple[int, int]] = None,
                 symmetric=False) -> csc_matrix:
   return MatrixReader(path=path, shape=shape, symmetric=symmetric).read_matrix()
@@ -145,21 +147,25 @@ class MatricesReader:
   모든 파일로부터 max_node를 먼저 읽고 각 matrix의 shape을 결정
   """
 
-  def __init__(self, files=None, max_node=None) -> None:
-    if max_node is not None:
-      self._max_node = max_node
-    else:
-      if files is None:
-        raise ValueError
+  def __init__(self, files: Iterable[StrPath] = None, max_node=0) -> None:
+    if files is None and max_node is None:
+      raise ValueError('files나 max_node 중 하나는 지정해야 합니다.')
 
-      self._max_node = max([self._find_max_node(x) for x in files])
+    if files is None:
+      files = []
+
+    # max_node, 지정한 files의 최대 노드 중 최댓값을 self._max_node로 설정
+    self._max_node = max([max_node] + [self._find_max_node(x) for x in files])
+
+    if self._max_node <= 0:
+      raise ValueError('max_node <= 0')
 
   @property
   def max_node(self):
     return self._max_node
 
   @staticmethod
-  def _find_max_node(path):
+  def _find_max_node(path: StrPath):
     """
     mtx파일에서 최대 노드 번호를 찾아 반환
     대상 파일이 존재하지 않는 경우 -1 반환
@@ -187,12 +193,10 @@ class MatricesReader:
 
     return max_node
 
-  def read_matrix(
-      self,
-      path: Union[str, os.PathLike],
-      square: bool,
-      symmetric=False,
-  ) -> csc_matrix:
+  def read_matrix(self,
+                  path: StrPath,
+                  square: bool,
+                  symmetric=False) -> csc_matrix:
     if not square and symmetric:
       raise ValueError
 
@@ -209,10 +213,10 @@ class MatricesReader:
 class SystemMatricesReader(MatricesReader):
 
   def __init__(self,
-               damping: Union[str, os.PathLike],
-               stiffness: Union[str, os.PathLike],
-               internal_load: Union[str, os.PathLike],
-               external_load: Union[str, os.PathLike],
+               damping: StrPath,
+               stiffness: StrPath,
+               internal_load: StrPath,
+               external_load: StrPath,
                max_node=None) -> None:
     self._damping = damping
     self._stiffness = stiffness

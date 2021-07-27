@@ -1,5 +1,6 @@
-from pathlib import Path
-from typing import List, Union
+from typing import List
+
+from utils import StrPath
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -84,18 +85,15 @@ class MatrixH:
   def from_files(
       cls,
       H: np.ndarray,
-      files: List[Union[str, Path]],
-      is_square: bool,
-      is_symmetric: bool,
+      files: List[StrPath],
+      square: bool,
+      symmetric: bool,
   ):
     if len(files) != 3:
       raise ValueError
 
     mr = MatricesReader(files=files)
-    Ms = [
-        mr.read_matrix(f, square=is_square, symmetric=is_symmetric)
-        for f in files
-    ]
+    Ms = [mr.read_matrix(f, square=square, symmetric=symmetric) for f in files]
 
     return cls(H=H, Ms=Ms)
 
