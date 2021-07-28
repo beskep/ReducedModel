@@ -1,17 +1,12 @@
 """Thermal model 오류가 안나는지만 검사"""
 
-import context
 import utils
 
 import matplotlib.pyplot as plt
 import numpy as np
-from files import Files, Matrices, data_dir
+from test_case import data_dir, make_system_h
 
-from reduced_model import state_space_system as sss
-from reduced_model import thermal_model as tm
-
-pathC = data_dir.joinpath('C_o.txt')
-pathNs = [data_dir.joinpath('specific1_node.txt')]
+from reduced_model.thermal_model import ThermalModel
 
 
 def make_temperature():
@@ -32,35 +27,17 @@ def make_temperature():
   return T
 
 
-def make_system_h():
-  H = np.array([[1, 1], [1, 2], [2, 1]], dtype=float)
-
-  K = [Files.get_path(Matrices.K, x[0], x[1]) for x in H]
-  Li = [Files.get_path(Matrices.Li, x[0], x[1]) for x in H]
-  Le = [Files.get_path(Matrices.Le, x[0], x[1]) for x in H]
-
-  system_h = sss.SystemH.from_files(H=H,
-                                    C=pathC,
-                                    K=K,
-                                    Li=Li,
-                                    Le=Le,
-                                    Ti=20.0,
-                                    Te=5.0,
-                                    Ns=pathNs)
-
-  return system_h
-
-
 def test_compute_model():
-  temperature = make_temperature()
+  Tint = np.loadtxt(data_dir.joinpath('data_U1.txt'))
+  Text = np.loadtxt(data_dir.joinpath('data_U2.txt'))
+  temperature = np.vstack((Tint, Text)).T
 
   sysh = make_system_h()
-  # sys = sysh.system(hi=1.0, he=0.7)
 
-  thermal_model = tm.ThermalModel(system=sysh)
-  model = thermal_model.model(order=20, hi=2.0, he=2.0)
+  thermal_model = ThermalModel(system=sysh)
+  model = thermal_model.state_space(order=10, hi=1.665, he=14.802)
 
-  T = thermal_model.compute(model=model, dt=3600, bc=temperature, T0=10.0)
+  T = thermal_model.compute(model=model, dt=3600, bc=temperature, T0=20.0)
 
   return T
 

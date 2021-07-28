@@ -82,7 +82,7 @@ class ModelReducer:
                     stiffness: StrPath,
                     internal_load: StrPath,
                     external_load: StrPath,
-                    max_node=None):
+                    max_node=0):
     reader = mr.SystemMatricesReader(damping=damping,
                                      stiffness=stiffness,
                                      internal_load=internal_load,

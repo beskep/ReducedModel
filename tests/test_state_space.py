@@ -1,18 +1,17 @@
-"""
-대류 열전달계수에 따른 행렬 변환 테스트
-"""
 import context
 import utils
 
 import numpy as np
 import pytest
-from files import Files, Matrices
+from test_case import Files, Matrices, data_dir
 
-import reduced_model.matrix_reader as mr
-import reduced_model.system_matrix as sm
+from reduced_model.state_space import MatrixH, System, SystemH
+
+pathC = data_dir.joinpath('C_o.txt')
+pathNs = [data_dir.joinpath('specific1_node.txt')]
 
 
-class TestHypothesis:
+class TestMatrixHHypothesis:
 
   @pytest.mark.parametrize('m', Matrices.all_)
   def test_linear_hypothesis(self, m):
@@ -84,7 +83,7 @@ class TestMatrixH:
 
   def test_inv_error(self):
     with pytest.raises(np.linalg.LinAlgError):
-      sm.MatrixH(H=np.ones([3, 3]), Ms=[None, None, None])
+      MatrixH(H=np.ones([3, 3]), Ms=[None, None, None])
 
   @pytest.mark.parametrize('m', Matrices.all_)
   def test_validation(self, m):
@@ -100,7 +99,7 @@ class TestMatrixH:
       assert M11.shape[1] == 1
 
     H = np.array([[1, 1], [1, 2], [2, 1]], dtype=float)
-    mh = sm.MatrixH(H=H, Ms=[M11, M12, M21])
+    mh = MatrixH(H=H, Ms=[M11, M12, M21])
 
     M22e = mh.matrix(hi=2.0, he=2.0)
 
@@ -113,15 +112,69 @@ class TestMatrixH:
 
     H = np.array([[1, 1], [1, 2], [2, 1]], dtype=float)
 
-    mh = sm.MatrixH.from_files(H=H,
-                               files=[Files.get_path(m, x[0], x[1]) for x in H],
-                               square=symm,
-                               symmetric=symm)
+    mh = MatrixH.from_files(H=H,
+                            files=[Files.get_path(m, x[0], x[1]) for x in H],
+                            square=symm,
+                            symmetric=symm)
 
     M22e = mh.matrix(hi=2.0, he=2.0)
 
     assert np.allclose(M22.toarray(), M22e.toarray())
 
 
+def _system(Ti, Te):
+  sys = System.from_files(C=pathC,
+                          K=Files.get_path(m=Matrices.K, hi=2, he=2),
+                          Li=Files.get_path(m=Matrices.Li, hi=2, he=2),
+                          Le=Files.get_path(m=Matrices.Le, hi=2, he=2),
+                          Ti=Ti,
+                          Te=Te,
+                          Ns=pathNs)
+  return sys
+
+
+def _system_h(Ti, Te):
+  H = np.array([[1, 1], [1, 2], [2, 1]], dtype=float)
+
+  K = [Files.get_path(Matrices.K, x[0], x[1]) for x in H]
+  Li = [Files.get_path(Matrices.Li, x[0], x[1]) for x in H]
+  Le = [Files.get_path(Matrices.Le, x[0], x[1]) for x in H]
+
+  system_h = SystemH.from_files(H=H,
+                                C=pathC,
+                                K=K,
+                                Li=Li,
+                                Le=Le,
+                                Ti=Ti,
+                                Te=Te,
+                                Ns=pathNs)
+
+  sysh = system_h.system(hi=2, he=2)
+
+  return sysh
+
+
+@pytest.mark.parametrize(['Ti', 'Te'], [(0.2, 1.25)])
+def test_h(Ti, Te):
+  sys = _system(Ti, Te)
+  sysh = _system_h(Ti, Te)
+
+  assert np.allclose(sys.C.toarray(), sysh.C.toarray())
+  assert np.allclose(sys.K.toarray(), sysh.K.toarray())
+  assert np.allclose(sys.LiTi.toarray(), sysh.LiTi.toarray())
+  assert np.allclose(sys.LeTe.toarray(), sysh.LeTe.toarray())
+
+  for N, Nh in zip(sys.Ns, sysh.Ns):
+    assert np.allclose(N.toarray(), Nh.toarray())
+
+  # reduce
+  ss = sys.model(order=5)
+  ssh = sysh.model(order=5)
+
+  assert ss.A == pytest.approx(ssh.A)
+  assert ss.B == pytest.approx(ssh.B)
+  assert ss.C == pytest.approx(ssh.C)
+
+
 if __name__ == '__main__':
-  pytest.main(['-vv', '-k', 'test_system_matrix'])
+  pytest.main(['-vv', '-k', 'test_state_space'])

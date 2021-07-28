@@ -155,7 +155,8 @@ class MatricesReader:
       files = []
 
     # max_node, 지정한 files의 최대 노드 중 최댓값을 self._max_node로 설정
-    self._max_node = max([max_node] + [self._find_max_node(x) for x in files])
+    max_nodes = [self._find_max_node(x) for x in files]
+    self._max_node = max([max_node] + max_nodes)
 
     if self._max_node <= 0:
       raise ValueError('max_node <= 0')
@@ -171,7 +172,7 @@ class MatricesReader:
     대상 파일이 존재하지 않는 경우 -1 반환
     """
     if not (path and os.path.exists(path)):
-      return -1
+      raise FileNotFoundError(path)
 
     lines = deque(maxlen=2)
 
@@ -217,7 +218,7 @@ class SystemMatricesReader(MatricesReader):
                stiffness: StrPath,
                internal_load: StrPath,
                external_load: StrPath,
-               max_node=None) -> None:
+               max_node=0) -> None:
     self._damping = damping
     self._stiffness = stiffness
     self._internal_load = internal_load

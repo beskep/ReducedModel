@@ -8,7 +8,7 @@ from loguru import logger
 from rich.progress import track
 from scipy.linalg import inv
 
-from .state_space_system import StateSpace, System, SystemH
+from .state_space import StateSpace, System, SystemH
 
 
 @dataclass
@@ -23,36 +23,31 @@ class ThermalModel:
   # TODO save, load 함수
 
   def __init__(self, system: Union[System, SystemH]) -> None:
-    if isinstance(system, System):
-      self._system: Optional[System] = system
-      self._system_h: Optional[SystemH] = None
-    elif isinstance(system, SystemH):
-      self._system = None
-      self._system_h = system
-    else:
-      raise ValueError
-
+    self._system = system
     self._x0opt = X0Option()
+
+  @property
+  def system(self) -> Union[System, SystemH]:
+    return self._system
 
   def set_x0_option(self, option: X0Option):
     self._x0opt = option
 
-  def model(self,
-            order: Optional[int] = None,
-            hi: Optional[float] = None,
-            he: Optional[float] = None) -> StateSpace:
-    if self._system_h is not None:
+  def state_space(self,
+                  order: Optional[int] = None,
+                  hi: Optional[float] = None,
+                  he: Optional[float] = None) -> StateSpace:
+    if isinstance(self._system, SystemH):
       if hi is None or he is None:
         raise ValueError
 
-      system = self._system_h.system(hi=hi, he=he)
+      system = self._system.system(hi=hi, he=he)
     else:
-      assert self._system is not None
       system = self._system
 
-    model = system.model(order=order)
+    ss = system.model(order=order)
 
-    return model
+    return ss
 
   def inital_x(self, Omega: np.ndarray, Pi: np.ndarray, T0: float):
     """
@@ -88,13 +83,13 @@ class ThermalModel:
 
     return Xnp1
 
-  def compute(
-      self,
-      model: StateSpace,
-      dt: float,
-      bc: np.ndarray,
-      T0: Optional[float] = None,
-      callback: Optional[Callable[[np.ndarray], None]] = None) -> np.ndarray:
+  def compute(self,
+              model: StateSpace,
+              dt: float,
+              bc: np.ndarray,
+              T0: Optional[float] = None,
+              callback: Optional[Callable[[np.ndarray], None]] = None,
+              progress=True) -> np.ndarray:
     """
     시간별 지정된 모델 노드의 온도 변화 계산
 
@@ -131,9 +126,14 @@ class ThermalModel:
     # 본 연산
     Ystack = None
 
-    for idx in track(range(bc.shape[0]),
-                     description='Computing...',
-                     console=utils.console):
+    if progress:
+      it = track(range(bc.shape[0]),
+                 description='Computing...',
+                 console=utils.console)
+    else:
+      it = range(bc.shape[0])
+
+    for idx in it:
       # boundary: [[internal temperature],
       #            [external temperature]]
       boundary = bc[idx].reshape([2, 1])

@@ -57,9 +57,9 @@ def test_matrices_reader_max_node():
 
 def test_system_matrices_read():
   matrices = mr.SystemMatricesReader(damping=path,
-                                     stiffness=None,
-                                     internal_load=None,
-                                     external_load=None)
+                                     stiffness=path,
+                                     internal_load=path,
+                                     external_load=path)
   mtx_read = matrices.damping_matrix
   mtx = np.array([[1, 0, 2], [0, 0, 3], [4, 5, 6]])
 
@@ -68,16 +68,11 @@ def test_system_matrices_read():
 
 def test_system_matrices_error():
   # pylint: disable=pointless-statement
-  matrices = mr.SystemMatricesReader(damping=path,
-                                     stiffness='./nonexist',
-                                     internal_load=None,
-                                     external_load=None)
-
   with pytest.raises(FileNotFoundError):
-    matrices.stiffness_matrix
-
-  with pytest.raises(FileNotFoundError):
-    matrices.internal_load_matrix
+    mr.SystemMatricesReader(damping=path,
+                            stiffness='./nonexist',
+                            internal_load=None,
+                            external_load=None)
 
 
 def test_find_max_node():

@@ -1,9 +1,14 @@
 import context
 import utils
 
+import numpy as np
+
 from reduced_model.matrix_reader import read_matrix
+from reduced_model.state_space import SystemH
 
 data_dir = utils.ROOT_DIR.joinpath('data/optimize')
+path_C = data_dir.joinpath('C_o.txt')
+path_Ns = [data_dir.joinpath('specific1_node.txt')]
 
 
 class Matrices:
@@ -43,3 +48,22 @@ class Files:
     matrix = read_matrix(path=path, symmetric=symm)
 
     return matrix
+
+
+def make_system_h(Ti=20.0, Te=5.0):
+  H = np.array([[1, 1], [1, 2], [2, 1]], dtype=float)
+
+  K = [Files.get_path(Matrices.K, x[0], x[1]) for x in H]
+  Li = [Files.get_path(Matrices.Li, x[0], x[1]) for x in H]
+  Le = [Files.get_path(Matrices.Le, x[0], x[1]) for x in H]
+
+  system_h = SystemH.from_files(H=H,
+                                C=path_C,
+                                K=K,
+                                Li=Li,
+                                Le=Le,
+                                Ti=Ti,
+                                Te=Te,
+                                Ns=path_Ns)
+
+  return system_h
