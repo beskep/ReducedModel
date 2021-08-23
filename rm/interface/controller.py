@@ -1,16 +1,16 @@
 import multiprocessing as mp
 from typing import Optional
 
-import utils
-
-import numpy as np
 from loguru import logger
+import numpy as np
 from PyQt5 import QtCore
-
 import reduced_model as rm
 from temperature import read_temperature
 
-from .base_controller import BaseController, popup
+from rm import utils
+
+from .base_controller import BaseController
+from .base_controller import popup
 
 
 def model_reduction_producer(queue: mp.Queue, order, mtxA, mtxB, mtxJ):

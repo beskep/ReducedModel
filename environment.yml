@@ -8,13 +8,16 @@ dependencies:
   - pip:
     - pyside2>=5.15
     - pyqt5>=5.15
-  - pytest
-  - cx_freeze
-  - rich
-  - loguru
-  # - nomkl
   - numpy
+  - nomkl
   - control
   - slycot
   - matplotlib-base
   - seaborn
+  - rich
+  - loguru
+  - cx_freeze
+  - pytest
+  - pylint
+  - yapf
+  - mypy

@@ -1,13 +1,11 @@
-import context
-import utils
-
 import numpy as np
 import pandas as pd
 
-from reduced_model import state_space as sss
-from reduced_model import thermal_model as tm
+from rm import utils
+from rm.reduced_model import state_space as sss
+from rm.reduced_model import thermal_model as tm
 
-data_dir = utils.ROOT_DIR.joinpath('data/optimize')
+data_dir = utils.DIR.ROOT.joinpath('data/optimize')
 
 
 def compute_by_h(bc: np.ndarray, hs, order: int):

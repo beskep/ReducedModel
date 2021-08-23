@@ -1,12 +1,11 @@
 from pathlib import Path
 
-import context
-import utils
-
 import numpy as np
 import pytest
 
-from reduced_model.reduced_model import Location, ModelReducer
+from rm import utils
+from rm.reduced_model.reduced_model import Location
+from rm.reduced_model.reduced_model import ModelReducer
 
 
 def _read_test_matrices():
@@ -42,7 +41,7 @@ def _read_test_matrices():
 def test_validate_matrix():
   mtxA, mtxB, mtxJ = _read_test_matrices()
 
-  data_dir = utils.ROOT_DIR.joinpath('data/test_case')
+  data_dir = utils.DIR.ROOT.joinpath('data/test_case')
   mtxAmatlab = np.loadtxt(data_dir.joinpath('matlab_A.txt').as_posix(),
                           delimiter=',')
   mtxBmatlab = np.loadtxt(data_dir.joinpath('matlab_B.txt').as_posix(),

@@ -1,13 +1,11 @@
-import context
-import utils
-
 import pandas as pd
-import pytest
 from pandas.api.types import is_numeric_dtype
+import pytest
 
-from temperature import read_temperature
+from rm import utils
+from rm.temperature import read_temperature
 
-DATA_DIR = utils.ROOT_DIR.joinpath('data')
+DATA_DIR = utils.DIR.ROOT.joinpath('data')
 
 
 def test_read_csv():

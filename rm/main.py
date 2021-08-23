@@ -1,14 +1,15 @@
+from multiprocessing import freeze_support
 import os
 import sys
-from multiprocessing import freeze_support
 
-import utils
-
+from interface import Controller
+from interface import PlotController
 from loguru import logger
-from PyQt5 import QtCore, QtGui, QtQml
-
-from interface import Controller, PlotController
 from matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtQml
+import utils
 
 
 def main():
@@ -16,10 +17,10 @@ def main():
 
   utils.set_logger()
 
-  cfg_path = utils.SRC_DIR.joinpath('interface/qtquickcontrols2.conf')
-  qml_path = utils.SRC_DIR.joinpath('interface/qml/main.qml')
+  cfg_path = utils.DIR.SRC.joinpath('interface/qtquickcontrols2.conf')
+  qml_path = utils.DIR.SRC.joinpath('interface/qml/main.qml')
   font_paths = [
-      utils.SRC_DIR.joinpath('resource/Spoqa Han Sans Neo {}.otf'.format(x))
+      utils.DIR.SRC.joinpath('resource/Spoqa Han Sans Neo {}.otf'.format(x))
       for x in ['Bold', 'Light', 'Regular']
   ]
 

@@ -1,11 +1,13 @@
-import context
-import utils
-
 import numpy as np
 import pytest
-from test_case import Files, Matrices, data_dir
+from test_case import data_dir
+from test_case import Files
+from test_case import Matrices
 
-from reduced_model.state_space import MatrixH, System, SystemH
+from rm import utils
+from rm.reduced_model.state_space import MatrixH
+from rm.reduced_model.state_space import System
+from rm.reduced_model.state_space import SystemH
 
 pathC = data_dir.joinpath('C_o.txt')
 pathNs = [data_dir.joinpath('specific1_node.txt')]

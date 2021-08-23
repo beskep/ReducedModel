@@ -1,12 +1,11 @@
 import argparse
 from pathlib import Path
 
-import context
-import utils
-
+from loguru import logger
 import numpy as np
 import scipy.io
-from loguru import logger
+
+from rm import utils
 
 
 def read_and_save_mat(path, save_dir=None):

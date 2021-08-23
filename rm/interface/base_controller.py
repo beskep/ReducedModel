@@ -1,9 +1,10 @@
 from functools import wraps
 from typing import Optional
 
-import numpy as np
 from loguru import logger
-from PyQt5 import QtCore, QtGui
+import numpy as np
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 
 from .plot_controller import PlotController
 

@@ -1,12 +1,10 @@
-import context
-import utils
-
 import numpy as np
 
-from reduced_model.matrix_reader import read_matrix
-from reduced_model.state_space import SystemH
+from rm import utils
+from rm.reduced_model.matrix_reader import read_matrix
+from rm.reduced_model.state_space import SystemH
 
-data_dir = utils.ROOT_DIR.joinpath('data/optimize')
+data_dir = utils.DIR.ROOT.joinpath('data/optimize')
 path_C = data_dir.joinpath('C_o.txt')
 path_Ns = [data_dir.joinpath('specific1_node.txt')]
 

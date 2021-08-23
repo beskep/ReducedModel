@@ -1,13 +1,12 @@
-import context
-import utils
-
 import numpy as np
 
-from reduced_model import Location, ModelReducer
+from rm import utils
+from rm.reduced_model import Location
+from rm.reduced_model import ModelReducer
 
 if __name__ == '__main__':
   model = ModelReducer(order=50)
-  root_dir = utils.ROOT_DIR
+  root_dir = utils.DIR.ROOT
 
   model.read_matrices(
       damping=root_dir.joinpath('data/test_case/C.txt'),

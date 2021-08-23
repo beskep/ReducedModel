@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 from typing import Callable, Optional, Union
 
-import utils
-
-import numpy as np
 from loguru import logger
+import numpy as np
 from rich.progress import track
 from scipy.linalg import inv
 
-from .state_space import StateSpace, System, SystemH
+from rm import utils
+
+from .state_space import StateSpace
+from .state_space import System
+from .state_space import SystemH
 
 
 @dataclass

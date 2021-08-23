@@ -1,18 +1,21 @@
-import sys
 from os import PathLike
 from pathlib import Path
+import sys
 from typing import Union
 
 from loguru import logger
 from rich.console import Console
 from rich.logging import RichHandler
 
-SRC_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SRC_DIR.parent
 
-_SRC_DIR = SRC_DIR.as_posix()
-if _SRC_DIR not in sys.path:
-  sys.path.append(_SRC_DIR)
+class DIR:
+  if getattr(sys, 'frozen', False):
+    ROOT = Path(sys.executable).parent.resolve()
+  else:
+    ROOT = Path(__file__).parents[1].resolve()
+
+  SRC = ROOT.joinpath('rm')
+
 
 console = Console()
 StrPath = Union[str, PathLike[str]]

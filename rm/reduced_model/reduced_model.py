@@ -1,21 +1,20 @@
-import os
 from enum import Enum
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable, Optional, Tuple
 
-import utils
-from utils import StrPath
-
-import numpy as np
 from control.modelsimp import balred
 from control.statesp import StateSpace
 from loguru import logger
+import numpy as np
 from rich.progress import track
 from scipy.linalg import inv
-from scipy.sparse import csc_matrix, csr_matrix
+from scipy.sparse import csc_matrix
+from scipy.sparse import csr_matrix
 from scipy.sparse import hstack as sparse_hstack
 from scipy.sparse.linalg import inv as sparse_inv
 
-import reduced_model.matrix_reader as mr
+from rm import utils
+import rm.reduced_model.matrix_reader as mr
+from rm.utils import StrPath
 
 
 def reduce_model(order: int, A: csc_matrix, B: csc_matrix, J: csc_matrix):

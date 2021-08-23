@@ -1,17 +1,15 @@
-import context
-import utils
-
 import numpy as np
 import pytest
 
-import reduced_model.matrix_reader as mr
+from rm import utils
+import rm.reduced_model.matrix_reader as mr
 
 row = np.array([0, 0, 1, 2, 2, 2])
 col = np.array([0, 2, 2, 0, 1, 2])
 data = np.array([1, 2, 3, 4, 5, 6])
 
-path = utils.ROOT_DIR.joinpath('tests/test_matrix.txt')
-DATA_DIR = utils.ROOT_DIR.joinpath('data')
+path = utils.DIR.ROOT.joinpath('tests/test_matrix.txt')
+DATA_DIR = utils.DIR.ROOT.joinpath('data')
 
 
 def write_test_matrix():

@@ -1,11 +1,9 @@
 from pathlib import Path
 
-import context
-import utils
-
 import numpy as np
 
-from reduced_model.reduced_model import Location, ModelReducer
+from rm.reduced_model.reduced_model import Location
+from rm.reduced_model.reduced_model import ModelReducer
 
 
 def compute(orders):

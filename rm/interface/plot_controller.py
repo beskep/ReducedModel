@@ -1,12 +1,13 @@
-from itertools import cycle, product
+from itertools import cycle
+from itertools import product
 from typing import Optional
 
-import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from PyQt5 import QtCore, QtGui
-
 from matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
+import numpy as np
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 
 try:
   import seaborn as sns

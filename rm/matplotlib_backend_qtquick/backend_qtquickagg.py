@@ -2,10 +2,12 @@
 Render to qtquick from agg.
 """
 
-import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+import numpy as np
 
-from .backend_qtquick import FigureCanvasQtQuick, QtCore, QtGui
+from .backend_qtquick import FigureCanvasQtQuick
+from .backend_qtquick import QtCore
+from .backend_qtquick import QtGui
 
 
 class FigureCanvasQtQuickAgg(FigureCanvasAgg, FigureCanvasQtQuick):

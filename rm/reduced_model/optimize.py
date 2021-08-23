@@ -2,10 +2,12 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Union
 
 import numpy as np
-from scipy.optimize import OptimizeResult, least_squares
+from scipy.optimize import least_squares
+from scipy.optimize import OptimizeResult
 
 from .state_space import SystemH
-from .thermal_model import ThermalModel, X0Option
+from .thermal_model import ThermalModel
+from .thermal_model import X0Option
 
 
 @dataclass

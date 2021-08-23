@@ -1,12 +1,12 @@
 """Thermal model 오류가 안나는지만 검사"""
 
-import utils
-
 import matplotlib.pyplot as plt
 import numpy as np
-from test_case import data_dir, make_system_h
+from test_case import data_dir
+from test_case import make_system_h
 
-from reduced_model.thermal_model import ThermalModel
+from rm import utils
+from rm.reduced_model.thermal_model import ThermalModel
 
 
 def make_temperature():

@@ -3,14 +3,21 @@ import traceback
 
 import matplotlib
 from matplotlib import cbook
-from matplotlib.backend_bases import (FigureCanvasBase, MouseButton,
-                                      NavigationToolbar2)
-from matplotlib.backends.backend_qt5 import (MODIFIER_KEYS, SPECIAL_KEYS,
-                                             TimerQT, cursord)
+from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.backend_bases import MouseButton
+from matplotlib.backend_bases import NavigationToolbar2
+from matplotlib.backends.backend_qt5 import cursord
+from matplotlib.backends.backend_qt5 import MODIFIER_KEYS
+from matplotlib.backends.backend_qt5 import SPECIAL_KEYS
+from matplotlib.backends.backend_qt5 import TimerQT
 from matplotlib.figure import Figure
 
-from .qt_compat import (QT_API, QT_API_PYSIDE2, QtCore, QtGui, QtQuick,
-                        QtWidgets)
+from .qt_compat import QT_API
+from .qt_compat import QT_API_PYSIDE2
+from .qt_compat import QtCore
+from .qt_compat import QtGui
+from .qt_compat import QtQuick
+from .qt_compat import QtWidgets
 
 
 class FigureCanvasQtQuick(QtQuick.QQuickPaintedItem, FigureCanvasBase):

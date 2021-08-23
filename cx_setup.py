@@ -1,7 +1,10 @@
 from pathlib import Path
 
-from cx_Freeze import Executable, setup
-from PyQt5 import QtCore, QtGui, QtQml
+from cx_Freeze import Executable
+from cx_Freeze import setup
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtQml
 
 base = None
 # if sys.platform == 'win32':

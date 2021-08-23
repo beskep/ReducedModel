@@ -6,16 +6,16 @@ K = Stiffness = Conductance (symmetric)
 L = Load = Solicitation
 """
 
-import os
 from collections import deque
 from functools import cached_property
+import os
 from pathlib import Path
 from typing import Iterable, Optional, Tuple
 
-from utils import StrPath
-
 import numpy as np
 from scipy.sparse import csc_matrix
+
+from rm.utils import StrPath
 
 
 def _get_node_number(line: str):

@@ -2,18 +2,19 @@ from dataclasses import dataclass
 from itertools import chain
 from typing import List, Optional, Tuple, Union
 
-import utils
-from utils import StrPath
-
-import numpy as np
 from control.modelsimp import balred
 from control.statesp import StateSpace
 from loguru import logger
+import numpy as np
 from scipy import sparse
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import inv as sparse_inv
 
-from .matrix_reader import MatricesReader, read_matrix
+from rm import utils
+from rm.utils import StrPath
+
+from .matrix_reader import MatricesReader
+from .matrix_reader import read_matrix
 
 
 def _nodes(matrix: Union[csc_matrix, StrPath],
