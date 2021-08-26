@@ -2,14 +2,15 @@ from multiprocessing import freeze_support
 import os
 import sys
 
-from interface import Controller
-from interface import PlotController
 from loguru import logger
-from matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtQml
-import utils
+
+from rm import utils
+from rm.interface import Controller
+from rm.interface import PlotController
+from rm.matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
 
 
 def main():

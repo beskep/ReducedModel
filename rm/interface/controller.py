@@ -4,10 +4,10 @@ from typing import Optional
 from loguru import logger
 import numpy as np
 from PyQt5 import QtCore
-import reduced_model as rm
-from temperature import read_temperature
 
 from rm import utils
+import rm.reduced_model as rm
+from rm.temperature import read_temperature
 
 from .base_controller import BaseController
 from .base_controller import popup

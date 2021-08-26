@@ -4,10 +4,11 @@ from typing import Optional
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
 import numpy as np
 from PyQt5 import QtCore
 from PyQt5 import QtGui
+
+from rm.matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
 
 try:
   import seaborn as sns
