@@ -1,28 +1,16 @@
 from pathlib import Path
+import sys
 
 from cx_Freeze import Executable
 from cx_Freeze import setup
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtQml
 
-base = None
-# if sys.platform == 'win32':
-#   base = 'Win32GUI'
-
-include_files = ['src', 'data']
+include_files = ['data', 'resource']
 includes = [
     'loguru',
     'rich',
     'rich.console',
     'rich.logging',
     'rich.progress',
-    'PyQt5',
-    'PyQt5.QtCore',
-    'PyQt5.QtGui',
-    'PyQt5.QtQml',
-    'PyQt5.QtQuick',
-    'PyQt5.QtWidgets',
     'matplotlib',
     'seaborn',
     'numpy',
@@ -31,23 +19,23 @@ includes = [
     'control',
     'slycot',
 ]
-excludes = ['PySide2', 'email', 'pdb', 'pydoc', 'tkinter']
+excludes = ['email', 'pdb', 'pydoc', 'tkinter']
 zip_include_packages = []
 
 try:
   import mkl
-
+except ImportError:
+  pass
+else:
   includes.append('mkl')
 
-  libbin = Path(mkl.__path__[0]).parents[2].joinpath('Library/bin')
+  libbin = Path(sys.base_prefix).joinpath('Library/bin')
   for dll in ['mkl_intel_thread']:
     dll_path = libbin.joinpath(dll + '.dll')
     if not dll_path.exists():
       raise FileNotFoundError(dll_path)
 
     include_files.append(dll_path.as_posix())
-except ImportError:
-  pass
 
 options = {
     'build_exe': {
@@ -59,7 +47,7 @@ options = {
 }
 
 executables = [
-    Executable('run.py', base=base),
+    Executable('run.py'),
 ]
 
 setup(name='app',

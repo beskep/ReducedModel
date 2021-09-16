@@ -2,15 +2,20 @@ from multiprocessing import freeze_support
 import os
 import sys
 
+from rm.interface.init import init_project
+
+init_project()
+
 from loguru import logger
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtQml
+from matplotlib_backend_qtquick.backend_qtquickagg import FigureCanvas
+from matplotlib_backend_qtquick.qt_compat import QtCore
+from matplotlib_backend_qtquick.qt_compat import QtGui
+from matplotlib_backend_qtquick.qt_compat import QtQml
+from matplotlib_backend_qtquick.qt_compat import QtQuick
 
 from rm import utils
 from rm.interface import Controller
 from rm.interface import PlotController
-from rm.matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
 
 
 def main():
@@ -18,10 +23,10 @@ def main():
 
   utils.set_logger()
 
-  cfg_path = utils.DIR.SRC.joinpath('interface/qtquickcontrols2.conf')
-  qml_path = utils.DIR.SRC.joinpath('interface/qml/main.qml')
+  cfg_path = utils.DIR.RESOURCE.joinpath('qtquickcontrols2.conf')
+  qml_path = utils.DIR.RESOURCE.joinpath('qml/main.qml')
   font_paths = [
-      utils.DIR.SRC.joinpath('resource/Spoqa Han Sans Neo {}.otf'.format(x))
+      utils.DIR.RESOURCE.joinpath('font/Spoqa Han Sans Neo {}.otf'.format(x))
       for x in ['Bold', 'Light', 'Regular']
   ]
 
@@ -52,7 +57,7 @@ def main():
   context.setContextProperty('plot_con', plot_controller)
 
   # register figure canvas
-  QtQml.qmlRegisterType(FigureCanvasQtQuickAgg, 'Backend', 1, 0, 'FigureCanvas')
+  QtQml.qmlRegisterType(FigureCanvas, 'Backend', 1, 0, 'FigureCanvas')
 
   # load qml
   engine.load(qml_path.as_posix())

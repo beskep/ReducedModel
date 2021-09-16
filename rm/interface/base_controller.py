@@ -2,9 +2,9 @@ from functools import wraps
 from typing import Optional
 
 from loguru import logger
+from matplotlib_backend_qtquick.qt_compat import QtCore
+from matplotlib_backend_qtquick.qt_compat import QtGui
 import numpy as np
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 
 from .plot_controller import PlotController
 

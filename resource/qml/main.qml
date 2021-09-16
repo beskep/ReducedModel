@@ -14,19 +14,19 @@ ApplicationWindow {
     title : qsTr('리덕션 수치모델 기반 창호시공부위 하자 평가 프로그램')
 
     FontLoader {
-        source : '../../resource/Spoqa Han Sans Neo Regular.otf'
+        source : '../font/Spoqa Han Sans Neo Regular.otf'
     }
     FontLoader {
-        source : '../../resource/Spoqa Han Sans Neo Bold.otf'
+        source : '../font/Spoqa Han Sans Neo Bold.otf'
     }
     FontLoader {
-        source : '../../resource/Spoqa Han Sans Neo Light.otf'
+        source : '../font/Spoqa Han Sans Neo Light.otf'
     }
     FontLoader {
-        source : '../../resource/Spoqa Han Sans Neo Medium.otf'
+        source : '../font/Spoqa Han Sans Neo Medium.otf'
     }
     FontLoader {
-        source : '../../resource/Spoqa Han Sans Neo Thin.otf'
+        source : '../font/Spoqa Han Sans Neo Thin.otf'
     }
 
     header : TabBar {

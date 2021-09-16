@@ -2,8 +2,8 @@ import multiprocessing as mp
 from typing import Optional
 
 from loguru import logger
+from matplotlib_backend_qtquick.qt_compat import QtCore
 import numpy as np
-from PyQt5 import QtCore
 
 from rm import utils
 import rm.reduced_model as rm

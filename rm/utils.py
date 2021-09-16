@@ -7,6 +7,8 @@ from loguru import logger
 from rich.console import Console
 from rich.logging import RichHandler
 
+IS_FROZEN = getattr(sys, 'frozen', False)
+
 
 class DIR:
   if getattr(sys, 'frozen', False):
@@ -15,6 +17,7 @@ class DIR:
     ROOT = Path(__file__).parents[1].resolve()
 
   SRC = ROOT.joinpath('rm')
+  RESOURCE = ROOT.joinpath('resource')
 
 
 console = Console()

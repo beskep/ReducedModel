@@ -1,23 +1,26 @@
-name: rmpip
+name: rm
 channels:
-  - defaults
-  - conda-forge
+    - defaults
+    - conda-forge
 dependencies:
-  - python
-  - pip
-  - pip:
-    - pyside2>=5.15
-    - pyqt5>=5.15
-  - numpy
-  - nomkl
-  - control
-  - slycot
-  - matplotlib-base
-  - seaborn
-  - rich
-  - loguru
-  - cx_freeze
-  - pytest
-  - pylint
-  - yapf
-  - mypy
+    - python=3.9
+    - pip
+    - pip:
+          - PyQt5>=5.15
+          - matplotlib-backend-qtquick
+    # numeric
+    - numpy
+    - nomkl
+    - control
+    - slycot
+    - matplotlib-base
+    - seaborn-base
+    # misc
+    - rich
+    - loguru
+    - cx_freeze
+    # dev
+    - pytest
+    - pylint
+    - yapf
+    - mypy

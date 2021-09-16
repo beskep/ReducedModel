@@ -4,11 +4,10 @@ from typing import Optional
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib_backend_qtquick.backend_qtquickagg import FigureCanvas
+from matplotlib_backend_qtquick.qt_compat import QtCore
+from matplotlib_backend_qtquick.qt_compat import QtGui
 import numpy as np
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-
-from rm.matplotlib_backend_qtquick import FigureCanvasQtQuickAgg
 
 try:
   import seaborn as sns
@@ -29,14 +28,14 @@ class PlotController(QtCore.QObject):
     self._app: QtGui.QGuiApplication = None
     self._figure: Figure = None
     self._axes: Axes = None
-    self._canvas: Optional[FigureCanvasQtQuickAgg] = None
+    self._canvas: Optional[FigureCanvas] = None
 
     self._lines = []
 
   def set_app(self, app: QtGui.QGuiApplication):
     self._app = app
 
-  def update_with_canvas(self, canvas: FigureCanvasQtQuickAgg):
+  def update_with_canvas(self, canvas: FigureCanvas):
     self._canvas = canvas
     self._figure = self._canvas.figure
     self._axes = self._figure.add_subplot(111)

@@ -30,7 +30,7 @@ Item {
                 asynchronous : true
 
                 // FIXME qt.gui.icc: fromIccProfile: failed minimal tag size sanity
-                source : "../../resource/please stand by.jpg"
+                source : "../please stand by.jpg"
             }
 
             MouseArea {

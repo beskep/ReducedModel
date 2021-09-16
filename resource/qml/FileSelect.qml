@@ -31,7 +31,7 @@ Item {
                     id : list_view_delete_button
                     implicitWidth : 40
 
-                    icon.source : '../../resource/delete_outline_black_24dp.svg'
+                    icon.source : '../icon/delete_outline_black_24dp.svg'
                     icon.height : 20
 
                     onClicked : {
@@ -152,7 +152,7 @@ Item {
 
             Button {
                 text : 'Add File'
-                icon.source : '../../resource/add_black_24dp.svg'
+                icon.source : '../icon/add_black_24dp.svg'
                 highlighted : true
                 font.capitalization : Font.Capitalize
 

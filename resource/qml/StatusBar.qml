@@ -9,8 +9,8 @@ Pane {
     verticalPadding : 0
 
     property alias status_text : status_text
-    property var icon_blank: '../../resource/check_box_outline_blank_black_24dp.svg'
-    property var icon_check: '../../resource/check_box_black_24dp.svg'
+    property var icon_blank: '../icon/check_box_outline_blank_black_24dp.svg'
+    property var icon_check: '../icon/check_box_black_24dp.svg'
 
     background : Rectangle {
         color : '#E0E0E0'

@@ -24,7 +24,7 @@ Popup {
         RowLayout {
             Image {
                 id : title_icon
-                source : '../../resource/warning_black_24dp.svg'
+                source : '../icon/warning_black_24dp.svg'
                 Layout.alignment : Qt.AlignVCenter
             }
 
@@ -59,11 +59,11 @@ Popup {
 
     function set_icon(level = 0) {
         if (level === 0) {
-            title_icon.source = '../../resource/check_black_24dp.svg'
+            title_icon.source = '../icon/check_black_24dp.svg'
         } else if (level === 1) {
-            title_icon.source = '../../resource/info_black_24dp.svg'
+            title_icon.source = '../icon/info_black_24dp.svg'
         } else if (level === 2) {
-            title_icon.source = '../../resource/warning_black_24dp.svg'
+            title_icon.source = '../icon/warning_black_24dp.svg'
         }
     }
 }
