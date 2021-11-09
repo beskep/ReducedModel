@@ -11,7 +11,7 @@ IS_FROZEN = getattr(sys, 'frozen', False)
 
 
 class DIR:
-  if getattr(sys, 'frozen', False):
+  if IS_FROZEN:
     ROOT = Path(sys.executable).parent.resolve()
   else:
     ROOT = Path(__file__).parents[1].resolve()

@@ -1,6 +1,3 @@
-from pathlib import Path
-import sys
-
 from cx_Freeze import Executable
 from cx_Freeze import setup
 
@@ -22,21 +19,6 @@ includes = [
 excludes = ['email', 'pdb', 'pydoc', 'tkinter']
 zip_include_packages = []
 
-try:
-  import mkl
-except ImportError:
-  pass
-else:
-  includes.append('mkl')
-
-  libbin = Path(sys.base_prefix).joinpath('Library/bin')
-  for dll in ['mkl_intel_thread']:
-    dll_path = libbin.joinpath(dll + '.dll')
-    if not dll_path.exists():
-      raise FileNotFoundError(dll_path)
-
-    include_files.append(dll_path.as_posix())
-
 options = {
     'build_exe': {
         'include_files': include_files,
@@ -47,7 +29,7 @@ options = {
 }
 
 executables = [
-    Executable('run.py'),
+    Executable('rm/app/gui.py'),
 ]
 
 setup(name='app',

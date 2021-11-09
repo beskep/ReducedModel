@@ -18,6 +18,8 @@ dependencies:
     # misc
     - rich
     - loguru
+    - click
+    - pyyaml
     - cx_freeze
     # dev
     - pytest

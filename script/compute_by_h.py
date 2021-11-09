@@ -31,7 +31,7 @@ def compute_by_h(bc: np.ndarray, hs, order: int):
   dfs = []
   for h in hs:
     ss = thermal_model.state_space(order=order, hi=h[0], he=h[1])
-    ys = thermal_model.compute(model=ss, dt=30 * 60, bc=bc, T0=20)
+    ys = thermal_model.compute(ss=ss, dt=30 * 60, bc=bc, T0=20)
 
     df = pd.DataFrame(ys, columns=[f'node{x}' for x in range(len(Ns))])
     df['step'] = np.arange(df.shape[0])

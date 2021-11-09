@@ -156,6 +156,7 @@ def _system_h(Ti, Te):
   return sysh
 
 
+@pytest.mark.skip()
 @pytest.mark.parametrize(['Ti', 'Te'], [(0.2, 1.25)])
 def test_h(Ti, Te):
   sys = _system(Ti, Te)
@@ -176,7 +177,3 @@ def test_h(Ti, Te):
   assert ss.A == pytest.approx(ssh.A)
   assert ss.B == pytest.approx(ssh.B)
   assert ss.C == pytest.approx(ssh.C)
-
-
-if __name__ == '__main__':
-  pytest.main(['-vv', '-k', 'test_state_space'])

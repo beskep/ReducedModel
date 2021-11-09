@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-import pytest
 
 from rm import utils
 from rm.reduced_model.reduced_model import Location
@@ -52,7 +51,3 @@ def test_validate_matrix():
   assert np.allclose(mtxA.toarray(), mtxAmatlab, rtol=0, atol=1e-6)
   assert np.allclose(mtxB.toarray(), mtxBmatlab, rtol=0, atol=1e-6)
   assert np.allclose(mtxJ.toarray(), mtxJmatlab, rtol=0, atol=1e-6)
-
-
-if __name__ == '__main__':
-  pytest.main(['-vv', '-k', 'test_validate_matrix'])

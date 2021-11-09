@@ -37,7 +37,7 @@ def test_compute_model():
   thermal_model = ThermalModel(system=sysh)
   model = thermal_model.state_space(order=10, hi=1.665, he=14.802)
 
-  T = thermal_model.compute(model=model, dt=3600, bc=temperature, T0=20.0)
+  T = thermal_model.compute(ss=model, dt=3600, bc=temperature, T0=20.0)
 
   return T
 

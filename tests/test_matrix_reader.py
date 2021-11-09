@@ -83,7 +83,3 @@ def test_find_max_node():
   _max_node_assert(DATA_DIR.joinpath('test_case/specific1.txt'), 2371)
   _max_node_assert(
       DATA_DIR.joinpath('test_case_simple/C_HcombTHERM1_DMPV1.mtx'), 168)
-
-
-if __name__ == '__main__':
-  pytest.main(['-vv', '-k', 'test_matrix_reader'])

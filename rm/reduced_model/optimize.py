@@ -29,7 +29,7 @@ class ThermalModelOptimizer:
 
   def predict(self, hi: float, he: float, bc: np.ndarray, opts: ConstOptions):
     ss = self._model.state_space(order=opts.order, hi=hi, he=he)
-    pred = self._model.compute(model=ss,
+    pred = self._model.compute(ss=ss,
                                dt=opts.dt,
                                bc=bc,
                                T0=opts.T0,

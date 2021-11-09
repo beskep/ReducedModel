@@ -1,0 +1,18 @@
+model:
+    matrix_path:
+        capacitance: "DMPV1.txt"
+        conductance: "STIF1.txt"
+        solicitation:
+            internal: "LOAD1int.txt"
+            external: "Load1ext.txt"
+        target_nodes:
+            - "target1.txt"
+            - "target2.txt"
+    air_temperature:
+        internal: 20 # [°C]
+        external: 10 # [°C]
+environment:
+    temperature_path: "temperature.csv"
+    order: null
+    dt: 60 # [sec]
+    initial_temperature: 10 # [°C]

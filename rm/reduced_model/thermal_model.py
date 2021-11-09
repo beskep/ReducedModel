@@ -86,7 +86,7 @@ class ThermalModel:
     return Xnp1
 
   def compute(self,
-              model: StateSpace,
+              ss: StateSpace,
               dt: float,
               bc: np.ndarray,
               T0: Optional[float] = None,
@@ -97,7 +97,7 @@ class ThermalModel:
 
     Parameters
     ----------
-    model : StateSpace
+    ss : StateSpace
     dt : float
         Delta time
     bc : np.ndarray
@@ -114,10 +114,10 @@ class ThermalModel:
     np.ndarray
         온도 행렬. 각 행이 time step, 열이 target nodes를 의미.
     """
-    order = model.A.shape[0]
+    order = ss.A.shape[0]
 
-    Omega = inv(np.eye(order) - dt * model.A)
-    Pi = dt * np.dot(Omega, model.B)
+    Omega = inv(np.eye(order) - dt * ss.A)
+    Pi = dt * np.dot(Omega, ss.B)
 
     # X0
     if T0 is not None:
@@ -140,7 +140,7 @@ class ThermalModel:
       #            [external temperature]]
       boundary = bc[idx].reshape([2, 1])
 
-      Yn = np.dot(model.C, Xn) + np.dot(model.D, boundary)
+      Yn = np.dot(ss.C, Xn) + np.dot(ss.D, boundary)
       Xn = np.dot(Omega, Xn) + np.dot(Pi, boundary)
 
       if Ystack is None:
