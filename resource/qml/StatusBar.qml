@@ -9,8 +9,8 @@ Pane {
     verticalPadding : 0
 
     property alias status_text : status_text
-    property var icon_blank: '../icon/check_box_outline_blank_black_24dp.svg'
-    property var icon_check: '../icon/check_box_black_24dp.svg'
+    property var icon_blank: '\ue835'
+    property var icon_check: '\ue834'
 
     background : Rectangle {
         color : '#E0E0E0'
@@ -26,12 +26,11 @@ Pane {
                 Layout.alignment : Qt.AlignLeft | Qt.AlignBottom
             }
 
-            Image {
+            Text {
                 id : matrix_icon
-                source : icon_blank
-                Layout.preferredHeight : 22
-                Layout.preferredWidth : 22
-                Layout.alignment : Qt.AlignLeft | Qt.AlignBottom
+                text : icon_blank
+                font.family : 'Material Icons Outlined'
+                font.pointSize : 16
             }
         }
 
@@ -47,12 +46,11 @@ Pane {
                 Layout.alignment : Qt.AlignLeft | Qt.AlignBottom
             }
 
-            Image {
+            Text {
                 id : model_icon
-                source : icon_blank
-                Layout.preferredHeight : 22
-                Layout.preferredWidth : 22
-                Layout.alignment : Qt.AlignLeft | Qt.AlignBottom
+                text : icon_blank
+                font.family : 'Material Icons Outlined'
+                font.pointSize : 16
             }
         }
 
@@ -77,15 +75,15 @@ Pane {
 
     function update_model_status_icons(has_matrix, has_model) {
         if (has_matrix) {
-            matrix_icon.source = icon_check
+            matrix_icon.text = icon_check
         } else {
-            matrix_icon.source = icon_blank
+            matrix_icon.text = icon_blank
         }
 
         if (has_model) {
-            model_icon.source = icon_check
+            model_icon.text = icon_check
         } else {
-            model_icon.source = icon_blank
+            model_icon.text = icon_blank
         }
     }
 }

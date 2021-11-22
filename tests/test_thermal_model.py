@@ -2,11 +2,12 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from test_case import data_dir
-from test_case import make_system_h
 
 from rm import utils
 from rm.reduced_model.thermal_model import ThermalModel
+
+from .test_case import data_dir
+from .test_case import make_system_h
 
 
 def make_temperature():

@@ -12,7 +12,6 @@ import numpy as np
 try:
   import seaborn as sns
 
-  sns.set_style('whitegrid')
   cmap = sns.color_palette('Dark2')
 except ImportError:
   from matplotlib.cm import get_cmap
@@ -39,16 +38,22 @@ class PlotController(QtCore.QObject):
     self._canvas = canvas
     self._figure = self._canvas.figure
     self._axes = self._figure.add_subplot(111)
-    self._set_label()
+    self._set_axis()
 
-  def _set_label(self):
+  def _set_axis(self):
     self._axes.set_xlabel('Time step')
     self._axes.set_ylabel('Temperature [ºC]')
+    self._axes.tick_params(axis='both',
+                           which='both',
+                           top=False,
+                           bottom=False,
+                           left=False,
+                           right=False)
 
   def clear_plot(self):
     self._axes.clear()
     self._lines = []
-    self._set_label()
+    self._set_axis()
 
   @staticmethod
   def styles():

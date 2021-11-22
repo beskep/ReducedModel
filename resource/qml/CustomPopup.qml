@@ -22,17 +22,18 @@ Popup {
         spacing : 10
 
         RowLayout {
-            Image {
-                id : title_icon
-                source : '../icon/warning_black_24dp.svg'
-                Layout.alignment : Qt.AlignVCenter
+            Text {
+                id : _icon
+                text : '\ue88e'
+                font.family : 'Material Icons Outlined'
+                font.pointSize : 20
             }
 
             Label {
                 id : label_title
                 text : 'title'
                 font.pointSize : 14
-                font.weight: Font.Medium
+                font.weight : Font.Medium
                 Layout.fillWidth : true
                 Layout.alignment : Qt.AlignVCenter
             }
@@ -59,11 +60,11 @@ Popup {
 
     function set_icon(level = 0) {
         if (level === 0) {
-            title_icon.source = '../icon/check_black_24dp.svg'
+            _icon.text = '\ue5ca'
         } else if (level === 1) {
-            title_icon.source = '../icon/info_black_24dp.svg'
+            _icon.text = '\ue88e'
         } else if (level === 2) {
-            title_icon.source = '../icon/warning_black_24dp.svg'
+            _icon.text = '\uf083'
         }
     }
 }

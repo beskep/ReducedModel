@@ -29,7 +29,8 @@ options = {
 }
 
 executables = [
-    Executable('rm/app/gui.py'),
+    Executable('rm/app/cli.py', target_name='CLI'),
+    Executable('rm/app/gui.py', target_name='GUI'),
 ]
 
 setup(name='app',

@@ -31,8 +31,15 @@ Item {
                     id : list_view_delete_button
                     implicitWidth : 40
 
-                    icon.source : '../icon/delete_outline_black_24dp.svg'
-                    icon.height : 20
+                    RowLayout {
+                        anchors.fill : parent
+                        Text {
+                            text : '\ue14c'
+                            font.family : 'Material Icons Outlined'
+                            font.pointSize : 20
+                            Layout.alignment : Qt.AlignCenter
+                        }
+                    }
 
                     onClicked : {
                         list_view.model.remove(index);
@@ -151,10 +158,28 @@ Item {
             }
 
             Button {
-                text : 'Add File'
-                icon.source : '../icon/add_black_24dp.svg'
+                id : _af
                 highlighted : true
                 font.capitalization : Font.Capitalize
+                implicitWidth : _af_layout.implicitWidth + 10
+
+                RowLayout {
+                    id : _af_layout
+                    anchors.fill : parent
+
+                    Text {
+                        text : '\ue145'
+                        font.family : 'Material Icons Outlined'
+                        font.pointSize : _af.font.pointSize + 4
+                        Layout.alignment : Qt.AlignRight
+                    }
+
+                    Text {
+                        text : 'Add File'
+                        font : _af.font
+                        Layout.alignment : Qt.AlignLeft
+                    }
+                }
 
                 onReleased : {
                     file_dialog.open()
@@ -162,10 +187,28 @@ Item {
             }
 
             Button {
-                text : 'Load'
-                // TODO icon
+                id : _load
                 highlighted : list_model.count
                 font.capitalization : Font.Capitalize
+                implicitWidth : _load_layout.implicitWidth + 20
+
+                RowLayout {
+                    id : _load_layout
+                    anchors.fill : parent
+
+                    Text {
+                        text : '\ue890'
+                        font.family : 'Material Icons Outlined'
+                        font.pointSize : _load.font.pointSize + 4
+                        Layout.alignment : Qt.AlignRight
+                    }
+
+                    Text {
+                        text : 'Load'
+                        font : _load.font
+                        Layout.alignment : Qt.AlignLeft
+                    }
+                }
 
                 onReleased : {
                     if (rb_matrix.checked) {

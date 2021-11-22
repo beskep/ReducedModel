@@ -8,25 +8,20 @@ import QtQuick.Layouts 1.15
 
 ApplicationWindow {
     id : root
-    width : 1280
-    height : 720
+
+    width : 1600
+    height : 900
     visible : true
     title : qsTr('리덕션 수치모델 기반 창호시공부위 하자 평가 프로그램')
 
     FontLoader {
-        source : '../font/Spoqa Han Sans Neo Regular.otf'
+        source : '../font/NotoSansCJKkr-DemiLight.otf'
     }
     FontLoader {
-        source : '../font/Spoqa Han Sans Neo Bold.otf'
+        source : '../font/NotoSansCJKkr-Medium.otf'
     }
     FontLoader {
-        source : '../font/Spoqa Han Sans Neo Light.otf'
-    }
-    FontLoader {
-        source : '../font/Spoqa Han Sans Neo Medium.otf'
-    }
-    FontLoader {
-        source : '../font/Spoqa Han Sans Neo Thin.otf'
+        source : '../font/MaterialIconsOutlined-Regular.otf'
     }
 
     header : TabBar {

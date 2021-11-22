@@ -142,7 +142,6 @@ cython_debug/
 .idea/
 .*.py
 *.pyproject*
-*.otf
-*.jpg
-*.svg
+resource/font
 data/optimize
+*.bat

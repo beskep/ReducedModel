@@ -1,12 +1,13 @@
 """FAIL"""
 
 import numpy as np
-from test_case import data_dir
-from test_case import make_system_h
 
 from rm import utils
 from rm.reduced_model.optimize import ConstOptions
 from rm.reduced_model.optimize import ThermalModelOptimizer
+
+from .test_case import data_dir
+from .test_case import make_system_h
 
 
 def optimize():
