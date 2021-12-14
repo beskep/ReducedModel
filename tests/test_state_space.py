@@ -156,7 +156,7 @@ def _system_h(Ti, Te):
   return sysh
 
 
-@pytest.mark.skip()
+@pytest.mark.slow
 @pytest.mark.parametrize(['Ti', 'Te'], [(0.2, 1.25)])
 def test_h(Ti, Te):
   sys = _system(Ti, Te)

@@ -15,10 +15,10 @@ ApplicationWindow {
     title : qsTr('리덕션 수치모델 기반 창호시공부위 하자 평가 프로그램')
 
     FontLoader {
-        source : '../font/NotoSansCJKkr-DemiLight.otf'
+        source : '../font/SourceHanSansKR-Regular.otf'
     }
     FontLoader {
-        source : '../font/NotoSansCJKkr-Medium.otf'
+        source : '../font/SourceHanSansKR-Medium.otf'
     }
     FontLoader {
         source : '../font/MaterialIconsOutlined-Regular.otf'

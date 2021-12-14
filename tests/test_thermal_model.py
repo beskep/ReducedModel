@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 
 from rm import utils
 from rm.reduced_model.thermal_model import ThermalModel
@@ -28,16 +29,14 @@ def make_temperature():
   return T
 
 
+@pytest.mark.slow
 def test_compute_model():
-  Tint = np.loadtxt(data_dir.joinpath('data_U1.txt'))
-  Text = np.loadtxt(data_dir.joinpath('data_U2.txt'))
-  temperature = np.vstack((Tint, Text)).T
-
   sysh = make_system_h()
 
   thermal_model = ThermalModel(system=sysh)
   model = thermal_model.state_space(order=10, hi=1.665, he=14.802)
 
+  temperature = make_temperature()
   T = thermal_model.compute(ss=model, dt=3600, bc=temperature, T0=20.0)
 
   return T

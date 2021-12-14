@@ -138,10 +138,9 @@ dmypy.json
 cython_debug/
 
 # Project
-.vscode/
-.idea/
 .*.py
+.idea/
+.vscode/
+*.bat
 *.pyproject*
 resource/font
-data/optimize
-*.bat

@@ -25,4 +25,6 @@ dependencies:
     - pytest
     - pylint
     - yapf
+    - toml
+    - isort
     - mypy

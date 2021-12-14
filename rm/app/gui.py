@@ -25,21 +25,12 @@ def main():
 
   cfg_path = utils.DIR.RESOURCE.joinpath('qtquickcontrols2.conf')
   qml_path = utils.DIR.RESOURCE.joinpath('qml/main.qml')
-  font_paths = [
-      utils.DIR.RESOURCE.joinpath('font/NotoSansCJKkr-{}.otf'.format(x))
-      for x in ['DemiLight', 'Medium']
-  ]
-
-  for p in [cfg_path, qml_path] + font_paths:
+  for p in [cfg_path, qml_path]:
     p.stat()
 
   # graphic setting
   QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
   os.environ['QT_QUICK_CONTROLS_CONF'] = cfg_path.as_posix()
-
-  # for p in font_paths:
-  #   QtGui.QFontDatabase.addApplicationFont(
-  #       ':/' + p.relative_to(utils.ROOT_DIR).as_posix())
 
   # app
   app = QtGui.QGuiApplication(sys.argv)
