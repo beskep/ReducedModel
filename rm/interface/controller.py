@@ -227,6 +227,11 @@ class Controller(BaseController):
 
   @popup
   def _save_model(self, path: str):
+    if self._thermal_model is None:
+      if self._reduced_system is None:
+        raise ValueError('저장할 모델이 없습니다.')
+      self._thermal_model = ThermalModel(None)
+
     self._thermal_model.save(path=path, state_space=self._reduced_system)
 
     return True

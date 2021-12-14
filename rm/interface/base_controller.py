@@ -1,6 +1,6 @@
 from functools import wraps
 import sys
-from typing import Optional
+from typing import Optional, Union
 
 from loguru import logger
 from matplotlib_backend_qtquick.qt_compat import QtCore
@@ -8,8 +8,6 @@ from matplotlib_backend_qtquick.qt_compat import QtGui
 import numpy as np
 
 from .plot_controller import PlotController
-
-_ERRORS = () if __debug__ else (ValueError, RuntimeError, OSError)  # TODO test
 
 
 def popup(fn):
@@ -21,7 +19,7 @@ def popup(fn):
       if res is None:
         res = True
 
-    except _ERRORS as e:
+    except (ValueError, RuntimeError, OSError) as e:
       self.win.show_popup('Error', str(e), 2)
 
       logger.exception(e)
@@ -107,12 +105,12 @@ class BaseController(QtCore.QObject):
     self._plot_controller = pc
 
   def split_level(self, message: str):
-    if '|' in message:
+    if '|' not in message:
+      level = None
+    else:
       find = message.find('|')
       level = message[:find].upper()
       message = message[(find + 1):]
-    else:
-      level = None
 
     if level not in self.LOGLEVELS:
       level = 'INFO'
@@ -144,15 +142,16 @@ class BaseController(QtCore.QObject):
 
   @QtCore.Slot(str)
   def set_option(self, value: str):
-    key, value = value.split('|')
+    v: Union[str, float]
+    key, v = value.split('|')
 
     try:
-      value = float(value)
+      v = float(v)
     except ValueError:
       pass
 
-    self._options[key] = value
-    logger.debug('Option `{}`: {} ({})', key, value, type(value))
+    self._options[key] = v
+    logger.debug('Option `{}`: {} ({})', key, v, type(v))
 
   @popup
   def validate_files(self):

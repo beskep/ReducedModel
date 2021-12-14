@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from loguru import logger
 import numpy as np
@@ -23,12 +23,12 @@ class X0Option:
 
 class ThermalModel:
 
-  def __init__(self, system: Optional[Union[System, SystemH]]) -> None:
+  def __init__(self, system: Union[System, SystemH, None]) -> None:
     self._system = system
     self._x0opt = X0Option()
 
   @property
-  def system(self) -> Union[System, SystemH]:
+  def system(self) -> Union[System, SystemH, None]:
     return self._system
 
   def set_x0_option(self, option: X0Option):
@@ -38,9 +38,11 @@ class ThermalModel:
                   order: Optional[int] = None,
                   hi: Optional[float] = None,
                   he: Optional[float] = None) -> StateSpace:
-    if isinstance(self._system, SystemH):
+    if self._system is None:
+      raise ValueError('system is None')
+    elif isinstance(self._system, SystemH):
       if hi is None or he is None:
-        raise ValueError
+        raise ValueError(f'hi: {hi}, he: {he}')
 
       system = self._system.system(hi=hi, he=he)
     else:
@@ -142,7 +144,7 @@ class ThermalModel:
       Xn = np.zeros(shape=(order, 1))
 
     # 본 연산
-    Ystack = None
+    Ystack: Any = None
 
     if progress:
       it = track(range(bc.shape[0]),
