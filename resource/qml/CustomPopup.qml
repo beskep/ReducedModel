@@ -60,11 +60,11 @@ Popup {
 
     function set_icon(level = 0) {
         if (level === 0) {
-            _icon.text = '\ue5ca'
+            _icon.text = '\ue5ca' // check
         } else if (level === 1) {
-            _icon.text = '\ue88e'
+            _icon.text = '\ue88e' // info
         } else if (level === 2) {
-            _icon.text = '\uf083'
+            _icon.text = '\uf083' // warning
         }
     }
 }

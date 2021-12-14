@@ -17,7 +17,7 @@ if __name__ == '__main__':
       'control',
       'slycot',
   ]
-  excludes = ['email', 'pdb', 'pydoc', 'tkinter']
+  excludes = ['email', 'mypy', 'pdb', 'pydoc', 'tkinter']
   zip_include_packages = []
 
   options = {

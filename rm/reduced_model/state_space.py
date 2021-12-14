@@ -34,20 +34,33 @@ def _state_space(A: csc_matrix, B: csc_matrix, J: csc_matrix):
   return StateSpace(A.toarray(), B.toarray(), J.toarray(), 0.0)
 
 
-def reduce_model(A: csc_matrix, B: csc_matrix, J: csc_matrix,
-                 order: int) -> StateSpace:
-  ss = _state_space(A, B, J)
+# def reduce_model(A: csc_matrix, B: csc_matrix, J: csc_matrix,
+#                  order: int) -> StateSpace:
+#   ss = _state_space(A, B, J)
 
+#   with utils.console.status('Reducing model'):
+#     reduced_system: StateSpace = balred(sys=ss, orders=order)
+
+#   logger.info(
+#       '모델 리덕션 완료 (dim {} to {})',
+#       A.shape[0],
+#       reduced_system.A.shape[0],
+#   )
+
+#   return reduced_system
+
+
+def reduce_model(state_space: StateSpace, order: int) -> StateSpace:
   with utils.console.status('Reducing model'):
-    reduced_system: StateSpace = balred(sys=ss, orders=order)
+    reduced: StateSpace = balred(sys=state_space, orders=order)
 
   logger.info(
       '모델 리덕션 완료 (dim {} to {})',
-      A.shape[0],
-      reduced_system.A.shape[0],
+      state_space.A.shape[0],
+      reduced.A.shape[0],
   )
 
-  return reduced_system
+  return reduced
 
 
 class MatrixH:
@@ -220,14 +233,14 @@ class System:
   def model(self, order: Optional[int] = None):
     A, B, J = self.state_matrices()
 
-    if order is None:
-      ss = _state_space(A, B, J)
-    elif order < A.shape[0]:
-      ss = reduce_model(A=A, B=B, J=J, order=order)
-    else:
-      logger.warning('지정한 차수 ({})가 모델 차수 ({}) 이상입니다. '
-                     '모델을 축소하지 않습니다.', order, A.shape[0])
-      ss = _state_space(A, B, J)
+    ss = _state_space(A, B, J)
+
+    if order is not None:
+      if order < A.shape[0]:
+        ss = reduce_model(state_space=ss, order=order)
+      else:
+        logger.warning('지정한 차수 ({})가 모델 차수 ({}) 이상입니다. '
+                       '모델을 축소하지 않습니다.', order, A.shape[0])
 
     return ss
 

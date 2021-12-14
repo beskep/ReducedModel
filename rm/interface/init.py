@@ -26,8 +26,8 @@ def init_project():
 
   mpl.use('Qt5Agg')
 
-  font_name = 'Noto Sans CJK KR'
-  font_path = DIR.RESOURCE.joinpath('font/NotoSansCJKkr-DemiLight.otf')
+  font_name = 'Source Han Sans KR'
+  font_path = DIR.RESOURCE.joinpath('font/SourceHanSansKR-Regular.otf')
   if not font_path.exists():
     logger.warning('Font not found: {}', font_path)
     return

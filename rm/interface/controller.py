@@ -6,17 +6,20 @@ from matplotlib_backend_qtquick.qt_compat import QtCore
 import numpy as np
 
 from rm import utils
-import rm.reduced_model as rm
+from rm.reduced_model.state_space import reduce_model
+from rm.reduced_model.state_space import StateSpace
+from rm.reduced_model.state_space import System
+from rm.reduced_model.thermal_model import ThermalModel
 from rm.temperature import read_temperature
 
 from .base_controller import BaseController
 from .base_controller import popup
 
 
-def model_reduction_producer(queue: mp.Queue, order, mtxA, mtxB, mtxJ):
+def reduce_producer(queue: mp.Queue, state_space: StateSpace, order: int):
   utils.set_logger()
-  system, order = rm.reduce_model(order, mtxA, mtxB, mtxJ)
-  queue.put((system, order))
+  reduced = reduce_model(state_space=state_space, order=order)
+  queue.put(reduced)
 
 
 class ModelReductionConsumer(QtCore.QThread):
@@ -53,29 +56,31 @@ class Controller(BaseController):
     self._consumer = ModelReductionConsumer()
     self._consumer.done.connect(self.reduce_model_done)
 
-    self._reducer = rm.ModelReducer(order=0)
+    self._reduced_system: Optional[StateSpace] = None
+    self._thermal_model: Optional[ThermalModel] = None
     self._results = None
 
   @popup
   def _read_matrices(self):
-    self._reducer.order = self._options['order']
-
-    # 해석 환경 설정
+    target_nodes = [
+        k for k, v in self._files.items() if v == self.TARGET_NODES_ID
+    ]
     id_file = {
         value: key
         for key, value in self._files.items()
         if value != self.TARGET_NODES_ID
     }
-    self._reducer.read_matrices(*[id_file[x] for x in self.SYSTEM_MATRICES_ID])
 
-    self._reducer.set_target_nodes([
-        key for key, value in self._files.items()
-        if value == self.TARGET_NODES_ID
-    ])
+    system = System.from_files(C=id_file['Capacitance'],
+                               K=id_file['Conductance'],
+                               Li=id_file['Internal Solicitation'],
+                               Le=id_file['External Solicitation'],
+                               Ti=self._options['internal air temperature'],
+                               Te=self._options['external air temperature'],
+                               Ns=target_nodes)
 
-    self._reducer.set_fluid_temperature(
-        interior=self._options['internal air temperature'],
-        exterior=self._options['external air temperature'])
+    self._thermal_model = ThermalModel(system=system)
+    self._reduced_system = None
 
     logger.info('Read matrices')
 
@@ -107,38 +112,47 @@ class Controller(BaseController):
 
   @popup
   def _reduce_model(self):
+    ss = self._thermal_model.state_space(order=None)
 
-    mtxA, mtxB, mtxJ = self._reducer.compute_state_matrices()
     queue = mp.Queue()
-
     self._consumer.set_queue(queue)
     self._consumer.start()
 
     logger.info('Model reducing start')
-    process = mp.Process(name='model reduce',
-                         target=model_reduction_producer,
-                         args=(queue, self._options['order'], mtxA, mtxB, mtxJ),
+    process = mp.Process(name='reduce',
+                         target=reduce_producer,
+                         args=(queue, ss, self._options['order']),
                          daemon=True)
     process.start()
 
   @QtCore.Slot()
   def reduce_model(self):
-    self._win.progress_bar(True)
-    self._win.show_popup(
-        title='모델 리듀스 시작',
-        message='환경에 따라 1분 이상 걸릴 수 있습니다.',
-        level=1,
-    )
+    if self._reduced_system is not None:
+      self.win.show_popup(title='Information',
+                          message='이미 리듀스된 모델이 있습니다.',
+                          level=1)
+      return
+    if self._thermal_model is None:
+      self.win.show_popup(
+          title='Error',
+          message='행렬이 로드되지 않았습니다.',
+          level=2,
+      )
+      return
+
+    self.win.progress_bar(True)
+    self.win.show_popup(title='모델 리듀스 시작',
+                        message='환경에 따라 1분 이상 걸릴 수 있습니다.',
+                        level=1)
     self._reduce_model()
 
   @popup
   def reduce_model_done(self):
-    rsystem, rorder = self._consumer.get_result()
-    self._reducer.set_reduced_model(rsystem, rorder)
+    self._reduced_system = self._consumer.get_result()
 
     logger.info('Model reducing ended')
-    self._win.progress_bar(False)
-    self._win.show_popup('Success', '모델 리듀스 완료.')
+    self.win.progress_bar(False)
+    self.win.show_popup('Success', '모델 리듀스 완료.')
 
     self.clear_results()
 
@@ -159,22 +173,30 @@ class Controller(BaseController):
   def read_model_from_selected(self):
     if self._read_model_from_selected():
       self.clear_results()
-      self._win.show_popup('Success', '모델 로드 완료.')
+      self.win.show_popup('Success', '모델 로드 완료.')
 
   @popup
-  def _compute(self, dt, time_steps, initial_temperature=0.0):
-    has_reduced_model = self._reducer.has_reduced_model()
-    if not has_reduced_model:
-      self._win.show_popup(
+  def _compute(self, dt, bc, T0=0.0):
+    if self._reduced_system is None:
+      if self._thermal_model is None:
+        raise ValueError('행렬이 로드되지 않았습니다.')
+
+      self.win.show_popup(
           title='Warning',
           message='모델이 리듀스 되지 않았습니다. 원본 모델을 통해 계산합니다.',
           level=1,
       )
-    res = self._reducer.compute(dt=dt,
-                                time_step=time_steps,
-                                initial_temperature=initial_temperature,
-                                callback=self._plot_controller.update_plot,
-                                reduced_system=has_reduced_model)
+      ss = self._thermal_model.state_space(order=None)
+    else:
+      ss = self._reduced_system
+
+    res = self._thermal_model.compute(
+        ss=ss,
+        dt=dt,
+        bc=bc,
+        T0=T0,
+        callback=self._plot_controller.update_plot,
+    )
     self._results = res
 
     return True
@@ -183,8 +205,9 @@ class Controller(BaseController):
   def compute(self):
     dt = self._options['deltat']
     time_steps = int(self._options['time steps'])
-    initial_temperature = self._options['initial temperature']
+    T0 = self._options['initial temperature']
 
+    # FIXME csv로 읽은 온도로
     interior_temperature_fn = self.sin_temperature_fn(
         max_temperature=self._options['internal max temperature'],
         min_temperature=self._options['internal min temperature'],
@@ -193,23 +216,18 @@ class Controller(BaseController):
         max_temperature=self._options['external max temperature'],
         min_temperature=self._options['external min temperature'],
         dt=dt)
-
-    self._reducer.set_temperature_condition(fn=interior_temperature_fn,
-                                            loc=rm.Location.Interior)
-    self._reducer.set_temperature_condition(fn=external_temperature_fn,
-                                            loc=rm.Location.Exterior)
+    Ti = [interior_temperature_fn(x) for x in range(time_steps)]
+    To = [external_temperature_fn(x) for x in range(time_steps)]
+    bc = np.vstack((Ti, To)).T
 
     self._plot_controller.clear_plot()
-    if self._compute(dt, time_steps, initial_temperature):
+    if self._compute(dt=dt, bc=bc, T0=T0):
       self._win.show_popup('Success', '연산 완료.')
       self.update_model_state()
 
   @popup
   def _save_model(self, path: str):
-    try:
-      self._reducer.save_reduced_model(path)
-    except ValueError as e:
-      raise ValueError('모델이 존재하지 않음.') from e
+    self._thermal_model.save(path=path, state_space=self._reduced_system)
 
     return True
 
@@ -222,11 +240,8 @@ class Controller(BaseController):
 
   def read_model(self, path):
     path = self.to_valid_path(path)
-    self._reducer.load_reduced_model(path)
-
-    self._reducer.set_fluid_temperature(
-        interior=self._options['internal air temperature'],
-        exterior=self._options['external air temperature'])
+    self._reduced_system = ThermalModel.load(path)
+    self._thermal_model = ThermalModel(None)
 
     return True
 
@@ -255,8 +270,8 @@ class Controller(BaseController):
     self.update_model_state()
 
   def update_model_state(self):
-    has_matrix = self._reducer.has_matrices()
-    has_model = self._reducer.has_reduced_model()
+    has_matrix = self._thermal_model is not None
+    has_model = self._reduced_system is not None
     has_result = self._results is not None
 
     self._win.update_model_state(has_matrix, has_model, has_result)

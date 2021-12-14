@@ -22,9 +22,8 @@ class X0Option:
 
 
 class ThermalModel:
-  # TODO save, load 함수
 
-  def __init__(self, system: Union[System, SystemH]) -> None:
+  def __init__(self, system: Optional[Union[System, SystemH]]) -> None:
     self._system = system
     self._x0opt = X0Option()
 
@@ -48,6 +47,23 @@ class ThermalModel:
       system = self._system
 
     ss = system.model(order=order)
+
+    return ss
+
+  def save(self, path, state_space: Optional[StateSpace] = None):
+    if state_space is None:
+      state_space = self.state_space()
+
+    np.savez(path,
+             A=state_space.A,
+             B=state_space.B,
+             C=state_space.C,
+             D=state_space.D)
+
+  @staticmethod
+  def load(path):
+    npz = np.load(path)
+    ss = StateSpace(npz['A'], npz['B'], npz['C'], npz['D'])
 
     return ss
 

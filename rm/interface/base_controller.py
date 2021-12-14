@@ -1,4 +1,5 @@
 from functools import wraps
+import sys
 from typing import Optional
 
 from loguru import logger
@@ -7,6 +8,8 @@ from matplotlib_backend_qtquick.qt_compat import QtGui
 import numpy as np
 
 from .plot_controller import PlotController
+
+_ERRORS = () if __debug__ else (ValueError, RuntimeError, OSError)  # TODO test
 
 
 def popup(fn):
@@ -18,8 +21,8 @@ def popup(fn):
       if res is None:
         res = True
 
-    except (ValueError, RuntimeError, OSError) as e:
-      self._win.show_popup('Error', str(e), 2)
+    except _ERRORS as e:
+      self.win.show_popup('Error', str(e), 2)
 
       logger.exception(e)
       res = None
@@ -35,6 +38,15 @@ class _Window:
     self._window = window
 
   def show_popup(self, title: str, message: str, level=0):
+    """
+    Parameters
+    ----------
+    title : str
+    message : str
+    level : int, optional
+        title 왼쪽의 아이콘을 결정.
+        0: check, 1: info, 2: warning
+    """
     logger.debug('[Popup] {}: {}', title, message)
     self._window.show_popup(title, message, level)
     self.status_message('{}: {}'.format(title, message))

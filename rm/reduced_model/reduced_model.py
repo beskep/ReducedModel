@@ -1,3 +1,4 @@
+"""Deprecated"""
 from enum import Enum
 from typing import Callable, Optional, Tuple
 

@@ -91,9 +91,10 @@ class PlotController(QtCore.QObject):
     # set ylim
     ymin = values.min()
     ymax = values.max()
-    margin = 0.05 * (ymax - ymin)
-    self._axes.set_ylim(ymin - margin, ymax + margin)
-    self._axes.set_ymargin(0.1)
+    if ymin != ymax:
+      margin = 0.05 * (ymax - ymin)
+      self._axes.set_ylim(ymin - margin, ymax + margin)
+      self._axes.set_ymargin(0.1)
 
     # draw
     self._canvas.draw()

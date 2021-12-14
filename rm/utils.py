@@ -33,7 +33,7 @@ def set_logger(level: Union[int, str, None] = None):
     else:
       level = 'INFO'
 
-  rich_handler = RichHandler(console=console, log_time_format='[%y-%m-%d %X]')
+  rich_handler = RichHandler(console=console, omit_repeated_times=False)
   logger.add(rich_handler, level=level, format='{message}', enqueue=True)
   logger.add('rm.log',
              level='DEBUG',

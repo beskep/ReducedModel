@@ -107,6 +107,8 @@ class MatrixReader:
       # raw에서 동일한 숫자만 있는 column 제거
       identical_cols = np.all(raw == raw[0, :], axis=0)
       assert np.sum(identical_cols) != raw.shape[1]
+      # 마지막 열 (value)는 동일한 값만 있더라도 제거하지 않음
+      identical_cols[-1] = False
       raw = raw[:, np.logical_not(identical_cols)]
 
     # 각 column의 값을 value, row, col에 지정
@@ -118,7 +120,7 @@ class MatrixReader:
       # load matrix의 경우 한 줄짜리 column (shape==(rows, 1))
       col = np.repeat(0, row.shape[0])
     else:
-      raise ValueError
+      raise ValueError(f'예상치 못한 형식: shape={raw.shape}, file={self.path}')
 
     # stiffness matrix (symmetric임)인 경우, lower/upper triangle 복사
     if self._symmetric:

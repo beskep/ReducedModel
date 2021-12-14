@@ -74,13 +74,29 @@ def _set_logger(loglevel):
               '-l',
               default='INFO',
               help='로그 표시 레벨 (debug, info, ...)')
-@click.option('--output', '-o', help='결과 파일 저장 경로 (csv)')
 @click.argument('config_path')
-def cli(config_path, loglevel, output):
+@click.argument('output', required=False)
+def cli(loglevel, config_path, output):
+  """
+  수치모델 축소 및 시뮬레이션
+
+  \b
+  Arguments:
+      config_path: config.yaml 경로
+      output:      결과 저장 경로 (폴더)
+  """
   _set_logger(loglevel)
 
   config_path = Path(config_path).resolve()
   config_path.stat()
+  logger.info('config: "{}"', config_path)
+
+  if output is not None:
+    output = Path(output)
+    if not output.is_dir():
+      raise NotADirectoryError(output)
+    output.stat()
+  logger.info('output: "{}"', output)
 
   with config_path.open('r') as f:
     config = yaml.safe_load(f)
@@ -97,17 +113,19 @@ def cli(config_path, loglevel, output):
                              Ti=config['model']['air_temperature']['internal'],
                              Te=config['model']['air_temperature']['external'],
                              Ns=paths[4:])
+  logger.info('모델 차수: {}', system.C.shape[0])
 
   order = env['order']
   if order is None:
     logger.info('모델 리덕션을 시행하지 않음')
   else:
     order = int(order)
-    logger.debug('모델 리덕션 목표 차수: {}', order)
+    logger.info('모델 리덕션 목표 차수: {}', order)
 
   model = ThermalModel(system=system)
   ss = model.state_space(order=order)
-  logger.debug('모델 차수: {}', ss.A.shape[0])
+  if order:
+    logger.info('리덕션 후 모델 차수: {}', ss.A.shape[0])
 
   out = model.compute(ss=ss,
                       dt=float(env['dt']),
@@ -120,8 +138,9 @@ def cli(config_path, loglevel, output):
     logger.info('시뮬레이션 완료:')
     print(df)
   else:
-    logger.info('시뮬레이션 결과 저장: "{}"', output)
-    df.to_csv(output)
+    df.to_csv(output.joinpath('SimulatedTemperature.csv'))
+    model.save(path=output.joinpath('Model.npz').as_posix(), state_space=ss)
+    logger.info('시뮬레이션 결과 저장 완료: "{}"', output)
 
 
 if __name__ == '__main__':
