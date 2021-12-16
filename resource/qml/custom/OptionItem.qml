@@ -13,9 +13,15 @@ Item {
     property alias validator : text_field.validator
     property var option_id: 'default'
 
-    Layout.preferredHeight : 30
+    Layout.preferredHeight : 45
     Layout.fillWidth : true
     Layout.fillHeight : true
+
+    Component.onCompleted : option()
+
+    function option() {
+        con.set_option(option_id + '|' + text_field.text);
+    }
 
     RowLayout {
         anchors.fill : parent
@@ -25,20 +31,18 @@ Item {
             Layout.fillWidth : true
             Layout.preferredWidth : 20
             text : ''
-            // font.pointSize : 12
         }
 
         TextField {
             id : text_field
             Layout.fillWidth : true
             Layout.preferredWidth : 10
+            selectByMouse : true
             text : ''
 
             validator : DoubleValidator {}
 
-            onTextChanged : {
-                con.set_option(option_id + '|' + text);
-            }
+            onEditingFinished : option()
         }
 
         Label {

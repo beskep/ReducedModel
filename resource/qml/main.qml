@@ -5,6 +5,8 @@ import QtQuick.Window 2.15
 import QtQuick.Dialogs 1.3
 import QtQuick.Layouts 1.15
 
+import 'custom'
+
 
 ApplicationWindow {
     id : root
@@ -38,12 +40,12 @@ ApplicationWindow {
         }
 
         TabButton {
-            text : qsTr('Temperature')
+            text : qsTr('Simulation')
             Material.accent : '#ffffff'
         }
 
         TabButton {
-            text : qsTr('Compute')
+            text : qsTr('Optimization')
             Material.accent : '#ffffff'
         }
 
@@ -72,14 +74,14 @@ ApplicationWindow {
                 Layout.fillWidth : true
             }
 
-            Temperature {
-                id : temperature
+            RunWidget {
+                id : run_widget
                 Layout.fillHeight : true
                 Layout.fillWidth : true
             }
 
-            RunWidget {
-                id : run_widget
+            Optimization {
+                id : optimization
                 Layout.fillHeight : true
                 Layout.fillWidth : true
             }
@@ -113,5 +115,13 @@ ApplicationWindow {
     function update_model_state(has_matrix, has_model, has_result) {
         run_widget.update_button_hightlights(has_matrix, has_model, has_result)
         footer.update_model_status_icons(has_matrix, has_model)
+    }
+
+    function update_files_list(list) {
+        file_option.file_select.update_files_list(list)
+    }
+
+    function set_points_count(count) {
+        optimization.set_points_count(count)
     }
 }

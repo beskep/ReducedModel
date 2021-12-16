@@ -79,7 +79,7 @@ ColumnLayout {
 
             FigureCanvas {
                 id : plot
-                objectName : 'plot'
+                objectName : 'simulation_plot'
                 dpi_ratio : Screen.devicePixelRatio
 
                 Layout.fillWidth : true
@@ -95,7 +95,6 @@ ColumnLayout {
         fileMode : FileDialog.SaveFile
 
         nameFilters : ['npz (*.npz)', 'All files (*.*)']
-        // defaultSuffix: 'npz'
 
         onAccepted : {
             if (save_model) {

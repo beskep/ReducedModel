@@ -11,13 +11,14 @@ if __name__ == '__main__':
       'rich.progress',
       'matplotlib',
       'seaborn',
+      'seaborn.cm',
       'numpy',
       'scipy',
       'scipy.spatial.transform._rotation_groups',
       'control',
       'slycot',
   ]
-  excludes = ['email', 'mypy', 'pdb', 'pydoc', 'tkinter']
+  excludes = ['mypy', 'pdb', 'tkinter']
   zip_include_packages = []
 
   options = {

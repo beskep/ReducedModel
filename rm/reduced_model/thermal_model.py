@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Iterable, List, Optional, Union
 
 from loguru import logger
 import numpy as np
@@ -103,6 +103,19 @@ class ThermalModel:
 
     return Xnp1
 
+  def _matrices(self, ss: StateSpace, dt, T0):
+    order = ss.A.shape[0]
+    omega = inv(np.eye(order) - dt * ss.A)
+    pi = dt * np.dot(omega, ss.B)
+
+    # X0
+    if T0 is not None:
+      xn = self.inital_x(Omega=omega, Pi=pi, T0=T0)
+    else:
+      xn = np.zeros(shape=(order, 1))
+
+    return omega, pi, xn
+
   def compute(self,
               ss: StateSpace,
               dt: float,
@@ -132,41 +145,70 @@ class ThermalModel:
     np.ndarray
         온도 행렬. 각 행이 time step, 열이 target nodes를 의미.
     """
-    order = ss.A.shape[0]
+    omega, pi, xn = self._matrices(ss=ss, dt=dt, T0=T0)
+    y: Any = None
 
-    Omega = inv(np.eye(order) - dt * ss.A)
-    Pi = dt * np.dot(Omega, ss.B)
-
-    # X0
-    if T0 is not None:
-      Xn = self.inital_x(Omega=Omega, Pi=Pi, T0=T0)
-    else:
-      Xn = np.zeros(shape=(order, 1))
-
-    # 본 연산
-    Ystack: Any = None
-
+    it: Iterable = range(bc.shape[0])
     if progress:
-      it = track(range(bc.shape[0]),
-                 description='Computing...',
-                 console=utils.console)
-    else:
-      it = range(bc.shape[0])
+      it = track(it, description='Computing...', console=utils.console)
 
-    for idx in it:
-      # boundary: [[internal temperature],
-      #            [external temperature]]
-      boundary = bc[idx].reshape([2, 1])
+    for step in it:
+      bcn = bc[step].reshape([2, 1])  # [[Tint], [Text]]
 
-      Yn = np.dot(ss.C, Xn) + np.dot(ss.D, boundary)
-      Xn = np.dot(Omega, Xn) + np.dot(Pi, boundary)
+      yn = np.dot(ss.C, xn) + np.dot(ss.D, bcn)
+      xn = np.dot(omega, xn) + np.dot(pi, bcn)
 
-      if Ystack is None:
-        Ystack = Yn.reshape([1, -1])
+      if y is None:
+        y = yn.reshape([1, -1])
       else:
-        Ystack = np.vstack((Ystack, Yn.reshape([1, -1])))
+        y = np.vstack((y, yn.reshape([1, -1])))
 
       if callback is not None:
-        callback(Ystack)
+        callback(y)
 
-    return Ystack
+    return y
+
+  def compute_multi_systems(
+      self,
+      sss: List[StateSpace],
+      dt: float,
+      bc: np.ndarray,
+      T0: Optional[float] = None,
+      callback: Optional[Callable[[np.ndarray], None]] = None,
+      progress=True,
+  ) -> np.ndarray:
+    matrices = [list(self._matrices(ss=ss, dt=dt, T0=T0)) for ss in sss]
+    models_count = len(sss)
+    y: Any = None
+
+    it: Iterable = range(bc.shape[0])
+    if progress:
+      it = track(it, description='Computing...', console=utils.console)
+
+    for step in it:
+      bcn = bc[step].reshape([2, 1])  # [[Tint], [Text]]
+
+      yn_list = []
+      for model in range(models_count):
+        omega, pi, xnm = matrices[model]
+
+        ynm = np.dot(sss[model].C, xnm) + np.dot(sss[model].D, bcn)
+        xnm = np.dot(omega, xnm) + np.dot(pi, bcn)
+
+        yn_list.append(ynm.ravel())
+        matrices[model][2] = xnm
+
+      # [Y(model0, point0), Y(model0, point1), ...,
+      #  Y(model1, point0), Y(model1, point1), ...]
+      # (ndim == 1)
+      yn = np.hstack(yn_list)
+
+      if y is None:
+        y = yn
+      else:
+        y = np.vstack((y, yn))
+
+      if callback is not None:
+        callback(y)
+
+    return y

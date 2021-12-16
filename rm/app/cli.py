@@ -105,13 +105,13 @@ def cli(loglevel, config_path, output):
   paths = _config_paths(config=config, config_dir=config_path.parent)
   temperature = _read_temperature(path=env['temperature_path'],
                                   config_dir=config_path.parent)
-
+  air_temperature = config['model']['air_temperature']
   system = System.from_files(C=paths[0],
                              K=paths[1],
                              Li=paths[2],
                              Le=paths[3],
-                             Ti=config['model']['air_temperature']['internal'],
-                             Te=config['model']['air_temperature']['external'],
+                             Ti=air_temperature['internal'] + 273.15,
+                             Te=air_temperature['external'] + 273.15,
                              Ns=paths[4:])
   logger.info('모델 차수: {}', system.C.shape[0])
 

@@ -12,6 +12,10 @@ Item {
 
     property var max_file_count: 99;
 
+    ButtonGroup {
+        id : file_group
+    }
+
     Component {
         id : delegate_component
 
@@ -30,6 +34,7 @@ Item {
                 Button {
                     id : list_view_delete_button
                     implicitWidth : 40
+                    enabled : !rb_reference.checked
 
                     RowLayout {
                         anchors.fill : parent
@@ -42,7 +47,7 @@ Item {
                     }
 
                     onClicked : {
-                        list_view.model.remove(index);
+                        list_model.remove(index);
                         con.delete_file(list_view_text.text);
                     }
                 }
@@ -55,7 +60,7 @@ Item {
                     Layout.fillWidth : true
                     Layout.fillHeight : true
                     text : list_text
-                    // readOnly : true
+                    readOnly : rb_reference.checked
                 }
 
                 // File type combo box
@@ -89,15 +94,10 @@ Item {
     FileDialog {
         id : file_dialog
 
-        nameFilters : ['All files (*.*)']
-        folder : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        nameFilters : ['All files (*)']
+        // folder : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
 
-        // // for Qt.labs.platform
-        fileMode : FileDialog.OpenFiles
-
-        // // for QtQuick.Dialogs
-        // folder : shortcuts.documents
-        // selectMultiple : true
+        fileMode : FileDialog.OpenFiles // Qt.labs.platform
 
         onAccepted : {
             let already_selected = []; // 이미 선택된 파일 목록
@@ -129,30 +129,53 @@ Item {
             spacing : 10
 
             RadioButton {
-                id : rb_matrix
-                text : 'Read Matrix'
-                checked : true
+                id : rb_reference
+                ButtonGroup.group : file_group
+                text : 'Reference Models'
 
-                ToolTip.visible : hovered
-                ToolTip.text : '모델을 구성할 행렬 파일을 읽습니다.'
+                // TODO check되면 add file, load 버튼 비활성화
+                onCheckedChanged : {
+                    if (checked) {
+                        list_model.clear();
+                        con.update_reference_models();
+                    }
+                }
             }
 
             RadioButton {
+                id : rb_matrix
+                ButtonGroup.group : file_group
+                text : 'Read Matrix'
+
+                ToolTip.visible : hovered
+                ToolTip.text : '모델을 구성할 행렬 파일을 읽습니다.'
+
+                onCheckedChanged : {
+                    if (checked) {
+                        list_model.clear();
+                        con.delete_all_files();
+
+                        max_file_count = 99;
+                        file_dialog.fileMode = FileDialog.OpenFiles;
+                    }
+                }
+            }
+
+            RadioButton {
+                ButtonGroup.group : file_group
                 text : 'Read Model'
 
                 ToolTip.visible : hovered
                 ToolTip.text : '기존에 구성한 모델을 불러옵니다.'
 
                 onCheckedChanged : {
-                    list_model.clear();
-                    con.delete_all_files();
 
-                    if (checked) { // 모델 파일 선택
+                    if (checked) {
+                        list_model.clear();
+                        con.delete_all_files();
+
                         max_file_count = 1;
                         file_dialog.fileMode = FileDialog.OpenFile;
-                    } else { // matrix 파일 선택
-                        max_file_count = 99;
-                        file_dialog.fileMode = FileDialog.OpenFiles;
                     }
                 }
             }
@@ -211,10 +234,12 @@ Item {
                 }
 
                 onReleased : {
-                    if (rb_matrix.checked) {
+                    if (rb_reference.checked) {
+                        con.read_reference_models();
+                    } else if (rb_matrix.checked) {
                         con.read_matrices();
                     } else {
-                        con.read_model_from_selected();
+                        con.read_user_selected_model();
                     }
                 }
             }
@@ -224,7 +249,7 @@ Item {
             id : rectangle
             Layout.fillHeight : true
             Layout.fillWidth : true
-            color : "#F2F2F2"
+            color : '#F2F2F2'
 
             ScrollView {
                 anchors.fill : parent
@@ -247,5 +272,9 @@ Item {
                 }
             }
         }
+    }
+
+    function update_files_list(list) {
+        list.forEach(x => list_model.append({'list_text': x}))
     }
 }

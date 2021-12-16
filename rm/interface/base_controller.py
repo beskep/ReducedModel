@@ -1,13 +1,13 @@
 from functools import wraps
-import sys
 from typing import Optional, Union
 
+# pylint: disable=no-name-in-module
 from loguru import logger
 from matplotlib_backend_qtquick.qt_compat import QtCore
 from matplotlib_backend_qtquick.qt_compat import QtGui
-import numpy as np
 
-from .plot_controller import PlotController
+from .plot_controller import OptimizationPlotController
+from .plot_controller import SimulationPlotController
 
 
 def popup(fn):
@@ -40,7 +40,9 @@ class _Window:
     Parameters
     ----------
     title : str
+        popup title
     message : str
+        popup message
     level : int, optional
         title 왼쪽의 아이콘을 결정.
         0: check, 1: info, 2: warning
@@ -58,6 +60,12 @@ class _Window:
   def update_model_state(self, has_matrix, has_model, has_result):
     self._window.update_model_state(has_matrix, has_model, has_result)
 
+  def update_files_list(self, list_):
+    self._window.update_files_list(list_)
+
+  def set_points_count(self, count):
+    self._window.set_points_count(count)
+
 
 class BaseController(QtCore.QObject):
   LOGLEVELS = ('TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR',
@@ -68,28 +76,19 @@ class BaseController(QtCore.QObject):
   SYSTEM_MATRICES_ID = FILE_TYPES[1:-1]  # 각 파일 하나씩 지정
   TARGET_NODES_ID = FILE_TYPES[-1]  # 복수 지정 가능
 
-  OPTION_IDS = (
-      'order',
-      'deltat',
-      'time steps',
-      'initial temperature',
-      'internal air temperature',
-      'internal max temperature',
-      'internal min temperature',
-      'external air temperature',
-      'external max temperature',
-      'external min temperature',
-  )
-
-  QML_PATH_PREFIX = 'file:///'
+  OPTION_IDS = ('order', 'deltat', 'initial temperature',
+                'internal air temperature', 'external air temperature')
 
   def __init__(self) -> None:
     super().__init__()
 
     self._win: Optional[_Window] = None
-    self._plot_controller: Optional[PlotController] = None
+    self._spc: Optional[SimulationPlotController] = None
+    self._opc: Optional[OptimizationPlotController] = None
     self._files = dict()
     self._options = dict()
+    self._temperature = dict()  # 실측 온도
+    self._points_count = 4  # 시뮬레이션 결과 중 온도 측정 지점 개수
 
   @property
   def win(self) -> _Window:
@@ -101,10 +100,21 @@ class BaseController(QtCore.QObject):
   def set_window(self, win: QtGui.QWindow):
     self._win = _Window(win)
 
-  def set_plot_controller(self, pc: PlotController):
-    self._plot_controller = pc
+  def set_plot_controller(self, spc: SimulationPlotController,
+                          opc: OptimizationPlotController):
+    self._spc = spc
+    self._opc = opc
 
-  def split_level(self, message: str):
+  @property
+  def points_count(self) -> int:
+    return self._points_count
+
+  @points_count.setter
+  def points_count(self, value: int):
+    self.win.set_points_count(value)
+    self._points_count = value
+
+  def _split_level(self, message: str):
     if '|' not in message:
       level = None
     else:
@@ -119,7 +129,7 @@ class BaseController(QtCore.QObject):
 
   @QtCore.Slot(str)
   def log(self, message: str):
-    level, message = self.split_level(message)
+    level, message = self._split_level(message)
     logger.log(level, message)
 
   @QtCore.Slot(str)
@@ -173,16 +183,10 @@ class BaseController(QtCore.QObject):
 
     return True
 
-  @staticmethod
-  def sin_temperature_fn(max_temperature, min_temperature, dt):
-    if max_temperature <= min_temperature:
-      raise ValueError('Tmax <= Tmin')
+  @QtCore.Slot(str, str, str, str, str)
+  def temperature_measurement(self, idx, day, time, point, temperature):
+    self._temperature[int(float(idx)) - 1] = (day, time, point, temperature)
 
-    avg_temperature = np.average([max_temperature, min_temperature])
-    amplitude = (max_temperature - min_temperature) / 2.0
-    k = 2 * np.pi / (24 * 3600 / dt)
-
-    def fn(step):
-      return avg_temperature + amplitude * np.sin(k * step)
-
-    return fn
+  @QtCore.Slot()
+  def clear_temperature_measurement(self):
+    self._temperature.clear()

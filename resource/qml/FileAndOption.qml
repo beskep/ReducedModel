@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.15
 import QtQuick.Layouts 1.15
 
+import 'custom'
+
 
 RowLayout {
     spacing : 10
@@ -22,7 +24,7 @@ RowLayout {
     CustomBox {
         title : 'Options'
         padding : 10
-        Layout.preferredWidth : 35
+        Layout.preferredWidth : 30
 
         ModelOptions {
             id : model_options

@@ -45,6 +45,7 @@ def init_project():
 
   sns.set_theme(context='notebook',
                 style='whitegrid',
+                palette='Dark2',
                 font=font_name,
                 rc={
                     'axes.edgecolor': '0.2',
