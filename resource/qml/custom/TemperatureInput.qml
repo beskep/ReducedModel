@@ -16,7 +16,8 @@ Item {
     Layout.fillHeight : true
 
     function temperature_measurement() {
-        con.temperature_measurement(_index.text, _day.text, _time.text, _point.text, _temperature.text)
+        con.temperature_measurement( //
+            _index.text, _day.text, _time.text, _point.text, _temperature.text)
     }
 
     Component.onCompleted : temperature_measurement()
@@ -27,7 +28,7 @@ Item {
 
         Label {
             id : _index
-            text : '1.'
+            text : '00.'
         }
 
         RowLayout {
@@ -38,6 +39,7 @@ Item {
                 implicitWidth : 30
                 selectByMouse : true
                 horizontalAlignment : TextField.AlignHCenter
+                color : enabled ? '#000000' : '#00000000'
 
                 validator : IntValidator {}
 
@@ -48,6 +50,7 @@ Item {
 
             Label {
                 text : 'day'
+                color : _day.enabled ? '#000000' : '#00000000'
             }
 
             TextField {
@@ -62,8 +65,9 @@ Item {
                 validator : RegExpValidator {
                     regExp : /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):[0-5][0-9]$ /
                 }
-                // TODO disable 됐을 때 투명한 색으로
+
                 enabled : _day.enabled
+                color : enabled ? '#000000' : '#00000000'
 
                 text : '00:00:00'
 
@@ -73,25 +77,28 @@ Item {
 
         TextField {
             id : _point
+            implicitWidth : 70
             readOnly : true
             text : ''
         }
 
-        TextField {
-            id : _temperature
+        RowLayout {
+            TextField {
+                id : _temperature
 
-            implicitWidth : 50
-            selectByMouse : true
-            horizontalAlignment : TextField.AlignRight
+                implicitWidth : 50
+                selectByMouse : true
+                horizontalAlignment : TextField.AlignRight
 
-            validator : DoubleValidator {}
+                validator : DoubleValidator {}
 
-            text : '0.0'
+                text : '0.0'
 
-            onEditingFinished : temperature_measurement()
-        }
-        Label {
-            text : '℃'
+                onEditingFinished : temperature_measurement()
+            }
+            Label {
+                text : '℃'
+            }
         }
     }
 }

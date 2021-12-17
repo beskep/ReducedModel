@@ -9,8 +9,8 @@ import Backend 1.0
 
 
 ColumnLayout {
-    property var save_model: true
-    property alias pbar : pbar
+    property var save_model: true;
+    property alias pbar : pbar;
 
     RowLayout {
         spacing : 5
@@ -91,7 +91,7 @@ ColumnLayout {
     FileDialog {
         id : save_file_dialog
 
-        folder : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        // folder : StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         fileMode : FileDialog.SaveFile
 
         nameFilters : ['npz (*.npz)', 'All files (*.*)']

@@ -1,5 +1,5 @@
 import multiprocessing as mp
-from typing import List, Optional
+from typing import Optional
 
 # pylint: disable=no-name-in-module
 from loguru import logger
@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from rm import utils
+from rm.interface.reference_systems import ReferenceSystems
 from rm.reduced_model.state_space import reduce_model
 from rm.reduced_model.state_space import StateSpace
 from rm.reduced_model.state_space import System
@@ -15,8 +16,6 @@ from rm.reduced_model.thermal_model import ThermalModel
 
 from .base_controller import BaseController
 from .base_controller import popup
-
-TIME0 = '2000-01-01'
 
 
 def reduce_producer(queue: mp.Queue, state_space: StateSpace, order: int):
@@ -55,15 +54,14 @@ def valid_path(path: str):
   return path.replace('file:///', '')
 
 
-def _temperature_error(measured: pd.DataFrame,
-                       simulated: pd.DataFrame) -> pd.DataFrame:
+def _temperature_error(measured: pd.DataFrame, simulated: pd.DataFrame):
   measured_times = np.unique(measured['time'])
   simulation_range = (np.min(simulated['time'].values),
                       np.max(simulated['time'].values))
   for time in measured_times:
     if not (simulation_range[0] <= time <= simulation_range[1]):
-      # TODO error message 읽을 수 있게
-      raise ValueError(f'시뮬레이션 범위에 포함되지 않는 시간이 입력됐습니다: {time}')
+      pdtd = pd.Timedelta(time)
+      raise ValueError(f'시뮬레이션 범위에 포함되지 않는 시간이 입력됐습니다: {pdtd}')
 
   # FIXME 비효율적
   models = np.unique(simulated['model'])
@@ -84,11 +82,15 @@ def _temperature_error(measured: pd.DataFrame,
               'simulated': temperature,
           }))
 
-  dfe: pd.DataFrame = pd.concat(dfs)
-  dfe = pd.merge(left=dfe, right=measured, on=['time', 'point'])
-  dfe['error'] = dfe['measurement'] - dfe['simulated']
+  error: pd.DataFrame = pd.concat(dfs)
+  error = pd.merge(left=error, right=measured, on=['time', 'point'])
+  error['error'] = error['measurement'] - error['simulated']
 
-  return dfe
+  rmse: pd.DataFrame = error.groupby('model')['error'].apply(
+      lambda x: np.sqrt(np.mean(np.square(x)))).to_frame().reset_index()
+  rmse = rmse.rename(columns={'error': 'RMSE'})
+
+  return error, rmse
 
 
 class Controller(BaseController):
@@ -100,7 +102,7 @@ class Controller(BaseController):
     self._consumer.done.connect(self.reduce_model_done)
 
     self._reduced_system: Optional[StateSpace] = None
-    self._reference_systems: Optional[List[StateSpace]] = None
+    self._reference_systems: Optional[ReferenceSystems] = None
     self._thermal_model: Optional[ThermalModel] = None
     self._results: Optional[pd.DataFrame] = None
 
@@ -221,23 +223,13 @@ class Controller(BaseController):
     self.clear_results()
     self.update_model_state()
 
-  @popup
-  def _reference_model_paths(self):
-    models_dir = utils.DIR.RESOURCE.joinpath('models')
-    paths = list(models_dir.glob('*.npz'))
-    if not paths:
-      raise FileNotFoundError(f'레퍼런스 모델이 없습니다: {models_dir}')
-
-    return paths
-
   @QtCore.Slot()
   def read_reference_models(self):
     self.reset_model()
 
-    paths = self._reference_model_paths()
-    tm = ThermalModel(None)
-    self._reference_systems = [tm.load(x) for x in paths]
-    self._spc.models_names = [x.stem for x in paths]
+    if self._reference_systems is None:
+      self._reference_systems = ReferenceSystems()
+    self._spc.models_names = self._reference_systems.names
 
     self.win.show_popup(title='Success', message='레퍼런스 모델 로드 완료.')
 
@@ -246,15 +238,18 @@ class Controller(BaseController):
 
   @QtCore.Slot()
   def update_reference_models(self):
-    names = [x.stem for x in self._reference_model_paths()]
-    self.win.update_files_list(names)
+    if self._reference_systems is None:
+      self._reference_systems = ReferenceSystems()
+
+    names = self._reference_systems.names
+    self.win.update_files_list(list(names))
     self.points_count = 4
 
   @popup
   def _compute(self, dt: float, bc: np.ndarray, T0=0.0):
     flag_reference = False
     if self._reference_systems is not None:
-      model = self._reference_systems
+      model = self._reference_systems.load()
       flag_reference = True
     elif self._reduced_system is not None:
       model = self._reduced_system
@@ -277,9 +272,8 @@ class Controller(BaseController):
     kwargs = dict(dt=dt, bc=bc, T0=T0, callback=self._spc.update_plot)
     if flag_reference:
       res = self._thermal_model.compute_multi_systems(sss=model, **kwargs)
-      models = [x.stem for x in self._reference_model_paths()]
       columns = [
-          f'{m}:Point{p+1:02d}' for m in models
+          f'{m}:Point{p+1:02d}' for m in self._reference_systems.names
           for p in range(self.points_count)
       ]
     else:
@@ -372,6 +366,8 @@ class Controller(BaseController):
     self._win.update_model_state(has_matrix, has_model, has_result)
 
   def _prep_temperature_measurement(self) -> pd.DataFrame:
+    TIME0 = '2000-01-01'
+
     try:
       data = [self._temperature[x] for x in range(len(self._temperature))]
     except KeyError as e:
@@ -409,10 +405,13 @@ class Controller(BaseController):
 
     simulated = self._prep_simulation_result()
     measured = self._prep_temperature_measurement()
-    error = _temperature_error(measured=measured, simulated=simulated)
+    error, rmse = _temperature_error(measured=measured, simulated=simulated)
 
-    self._opc.plot(error=error)
-    # TODO
+    self._opc.plot(error=error, rmse=rmse)
+
+    model = rmse.loc[rmse['RMSE'] == np.min(rmse['RMSE']), 'model'].values[0]
+    psi = self._reference_systems.linear_thermal_transmittance[model]
+    self.win.set_best_matching_model(model, psi)  # TODO formatting
 
   @QtCore.Slot()
   def optimize(self):

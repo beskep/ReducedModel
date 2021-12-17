@@ -124,4 +124,8 @@ ApplicationWindow {
     function set_points_count(count) {
         optimization.set_points_count(count)
     }
+
+    function set_best_matching_model(model, psi) {
+        optimization.set_best_matching_model(model, psi)
+    }
 }

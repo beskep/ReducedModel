@@ -12,12 +12,12 @@ import Backend 1.0
 Item {
     id : optimization
 
-    property var points_count: 4
-    Component.onCompleted : set_points_count(points_count)
+    property var points_count: 4;
+    Component.onCompleted : set_points_count(points_count);
 
     function set_points_count(count) {
         points_count = count
-        var total = count * parseInt(measurements_count.value)
+        var total = count * measurements_count.value
         if (list_model.count === total) {
             return
         }
@@ -27,8 +27,11 @@ Item {
 
         for (var idx = 0; idx < total; idx++) {
             var pnt_idx = idx % count
+            var row = idx + 1
+            row = row < 10 ? '0' + row + '.' : row + '.'
+
             list_model.append({
-                'index_text': (idx + 1) + '.',
+                'index_text': row,
                 'point_text': 'Point ' + (
                     pnt_idx + 1
                 ),
@@ -39,128 +42,139 @@ Item {
         }
     }
 
-    // function set_time() {
-    //     var day = ''
-    //     var time = ''
-    //     for (var idx = 0; idx < list_model.count; idx++) {
-    //         if (idx % points_count == 0) {
-    //             day = list_model.get(idx).day_text
-    //             time = list_model.get(idx).time_text
-    //         } else {
-    //             list_model.set(idx, {
-    //                 'day_text': day,
-    //                 'time_text': time
-    //             })
-    //         }
-    //         con.log('INFO|' + idx + '|' + day + '|' + time)
-    //     }
-    // }
+    function set_best_matching_model(model, psi) {
+        _model.text = model
+        _psi.text = psi
+    }
 
     RowLayout {
         anchors.fill : parent
         spacing : 10
 
-        ColumnLayout {
-            Layout.fillHeight : true
+        CustomBox {
+            title : 'Temperature Measurement'
             Layout.fillWidth : false
-            Layout.preferredWidth : 500
+            Layout.preferredWidth : 450
 
-            OptionItem {
-                id : measurements_count
+            ColumnLayout {
+                anchors.fill : parent
 
-                Layout.fillHeight : false
-                label.text : 'Number of Measurements'
-                option_id : 'measurements count'
-                value : '1'
-                validator : IntValidator {}
-                text_field.onEditingFinished : {
-                    set_points_count(points_count)
+                RowLayout {
+                    Label {
+                        text : 'Number of Measurements'
+                    }
+
+                    SpinBox {
+                        id : measurements_count
+                        from : 1
+                        to : 99
+                        value : 1
+
+                        editable : true
+                        validator : IntValidator {}
+
+                        onValueChanged : set_points_count(points_count)
+                    }
                 }
-            }
 
-            Rectangle {
-                Layout.fillWidth : true
-                Layout.fillHeight : true
+                Rectangle {
+                    Layout.fillWidth : true
+                    Layout.fillHeight : true
 
-                ScrollView {
-                    anchors.fill : parent
-                    clip : true
-
-                    ScrollBar.vertical.policy : ScrollBar.AsNeeded
-                    ScrollBar.horizontal.policy : ScrollBar.AlwaysOff
-
-                    ListView {
-                        id : list_view
+                    ScrollView {
                         anchors.fill : parent
+                        clip : true
 
-                        model : ListModel {
-                            id : list_model
-                            // ListElement {
-                            //     index_text : '0.'
-                            //     point_text : 'Point 1'
-                            //     day_text : '0'
-                            //     time_text : '00:00:00'
-                            //     time_enabled : true
-                            // }
-                        }
+                        ScrollBar.vertical.policy : ScrollBar.AsNeeded
+                        ScrollBar.horizontal.policy : ScrollBar.AlwaysOff
 
-                        delegate : TemperatureInput {
-                            width : list_view.width
-                            height : 45
+                        ListView {
+                            id : list_view
+                            anchors.fill : parent
 
-                            index : index_text
-                            point.text : point_text
-                            day.text : day_text
-                            time.text : time_text
-                            day.enabled : time_enabled
+                            model : ListModel {
+                                id : list_model
+                            }
+
+                            delegate : TemperatureInput {
+                                width : list_view.width - 25
+                                height : 45
+
+                                index : index_text
+                                point.text : point_text
+                                day.text : day_text
+                                time.text : time_text
+                                day.enabled : time_enabled
+                            }
                         }
                     }
                 }
             }
-
-            Button {
-                text : 'Optimize'
-
-                onReleased : con.optimize()
-            }
         }
 
-        ColumnLayout {
-            Layout.fillHeight : true
-            Layout.fillWidth : true
+        CustomBox {
+            title : 'Optimization'
 
             ColumnLayout {
-                Layout.fillHeight : true
-                Layout.fillWidth : true
+                anchors.fill : parent
 
-                FigureCanvas {
-                    objectName : 'optimization_plot'
-                    dpi_ratio : Screen.devicePixelRatio
-
-                    Layout.fillWidth : true
+                ColumnLayout {
                     Layout.fillHeight : true
+                    Layout.fillWidth : true
+
+                    FigureCanvas {
+                        objectName : 'optimization_plot'
+                        dpi_ratio : Screen.devicePixelRatio
+
+                        Layout.fillWidth : true
+                        Layout.fillHeight : true
+                    }
+
                 }
 
-            }
-            RowLayout {
-                Layout.fillWidth : true
+                RowLayout {
+                    Layout.fillWidth : true
 
-                Label {
-                    text : '최적 모델'
-                }
-                TextField {
-                    text : ''
-                    readOnly : true
-                }
-                Label {
-                    text : '선형 열관류율 (Ψ)'
-                }
-                TextField {
-                    text : ''
-                    readOnly : true
-                }
-                Label {
-                    text : 'W/mK'
+                    Button {
+                        text : 'Optimize'
+                        onReleased : con.optimize()
+                    }
+
+                    Rectangle {
+                        width : 50
+                    }
+
+                    Label {
+                        text : 'Best Model'
+                        font.pointSize: 14
+                    }
+                    TextField {
+                        id : _model
+                        readOnly : true
+                        selectByMouse : true
+                        horizontalAlignment : TextField.AlignRight
+                        font.pointSize: 14
+                    }
+
+                    Rectangle {
+                        width : 50
+                    }
+
+                    Label {
+                        text : 'Linear Thermal Transmittance (Ψ)'
+                        font.pointSize: 14
+                    }
+                    TextField {
+                        id : _psi
+                        readOnly : true
+                        selectByMouse : true
+                        horizontalAlignment : TextField.AlignRight
+                        font.pointSize: 14
+                    }
+                    Label {
+                        text : 'W/mK'
+                        font.pointSize: 14
+                    }
                 }
             }
         }

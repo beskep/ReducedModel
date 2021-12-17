@@ -169,7 +169,6 @@ Item {
                 ToolTip.text : '기존에 구성한 모델을 불러옵니다.'
 
                 onCheckedChanged : {
-
                     if (checked) {
                         list_model.clear();
                         con.delete_all_files();
@@ -204,9 +203,7 @@ Item {
                     }
                 }
 
-                onReleased : {
-                    file_dialog.open()
-                }
+                onReleased : file_dialog.open()
             }
 
             Button {

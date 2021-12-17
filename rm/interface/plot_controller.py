@@ -136,10 +136,9 @@ class SimulationPlotController(PlotController):
       line.set_xdata(xs)
       line.set_ydata(ys)
 
-    # set xlim
+    # set lim
     self._axes.set_xlim(xs[0], xs[-1])
 
-    # set ylim
     ymin = values.min()
     ymax = values.max()
     if ymin != ymax:
@@ -151,17 +150,18 @@ class SimulationPlotController(PlotController):
 
 class OptimizationPlotController(PlotController):
 
+  def update_with_canvas(self, canvas: FigureCanvas):
+    super().update_with_canvas(canvas)
+    self._axes.set_axis_off()
+
   def _set_axis(self):
     super()._set_axis()
     self._axes.set_xlabel('Model')
     self._axes.set_ylabel('Error [ºC]')
 
-  def plot(self, error: pd.DataFrame):
+  def plot(self, error: pd.DataFrame, rmse: pd.DataFrame):
     self.clear_plot()
 
-    rmse = error.groupby('model')['error'].apply(
-        lambda x: np.sqrt(np.mean(np.square(x)))).to_frame().reset_index()
-    rmse['RMSE'] = rmse['error']
     min_rmse = np.min(rmse['RMSE'])
     rmse['Best'] = ['Best Model' if x == min_rmse else '' for x in rmse['RMSE']]
 
@@ -186,5 +186,6 @@ class OptimizationPlotController(PlotController):
                     s=100,
                     ax=self._axes)
 
+    self._figure.tight_layout()
     self._set_axis()
     self.draw()

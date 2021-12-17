@@ -66,6 +66,9 @@ class _Window:
   def set_points_count(self, count):
     self._window.set_points_count(count)
 
+  def set_best_matching_model(self, model, ltt):
+    self._window.set_best_matching_model(model, ltt)
+
 
 class BaseController(QtCore.QObject):
   LOGLEVELS = ('TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR',
@@ -161,7 +164,7 @@ class BaseController(QtCore.QObject):
       pass
 
     self._options[key] = v
-    logger.debug('Option `{}`: {} ({})', key, v, type(v))
+    logger.debug('Option "{}": {} ({})', key, v, type(v))
 
   @popup
   def validate_files(self):
@@ -185,7 +188,10 @@ class BaseController(QtCore.QObject):
 
   @QtCore.Slot(str, str, str, str, str)
   def temperature_measurement(self, idx, day, time, point, temperature):
-    self._temperature[int(float(idx)) - 1] = (day, time, point, temperature)
+    row = int(float(idx)) - 1
+    logger.debug('Measurement {}: {} days {} | {} | {} deg', row, day, time,
+                 point, temperature)
+    self._temperature[row] = (day, time, point, temperature)
 
   @QtCore.Slot()
   def clear_temperature_measurement(self):
