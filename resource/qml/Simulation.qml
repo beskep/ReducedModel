@@ -105,10 +105,10 @@ ColumnLayout {
         }
     }
 
-    function update_button_hightlights(has_matrix, has_model, has_result) {
-        btn_reduce_model.highlighted = has_matrix && (! has_model)
+    function update_button_hightlights(model, has_matrix, has_model, has_result) {
+        btn_reduce_model.highlighted = (model === 'matrix') && has_matrix && (! has_model)
         btn_compute.highlighted = has_model
-        btn_save_model.highlighted = has_model
+        btn_save_model.highlighted = (model === 'matrix') && has_model
         btn_save_result.highlighted = has_result
     }
 }

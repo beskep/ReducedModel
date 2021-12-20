@@ -129,16 +129,19 @@ class ThermalModel:
     Parameters
     ----------
     ss : StateSpace
+        State space system
     dt : float
         Delta time
     bc : np.ndarray
-        Boundary condition (boundary temperature)
+        Boundary condition (boundary temperature).
         bc[:, 0]은 internal temperature, bc[:, 1]은 external temperature인
         2차원 ndarray
     T0 : Optional[float], optional
         Initial temperature, by default None
     callback : Optional[Callable[[np.ndarray], None]], optional
-        매 회 실행하는 callback 함수. 입력 인자는 계산한 온도 행렬
+        매 회 실행하는 callback 함수. 입력 인자는 계산한 온도 행렬.
+    progress : bool, optional
+        rich.progress 표시 여부
 
     Returns
     -------
@@ -164,7 +167,8 @@ class ThermalModel:
         y = np.vstack((y, yn.reshape([1, -1])))
 
       if callback is not None:
-        callback(y)
+        with logger.catch(reraise=True):
+          callback(y)
 
     return y
 
@@ -177,6 +181,31 @@ class ThermalModel:
       callback: Optional[Callable[[np.ndarray], None]] = None,
       progress=True,
   ) -> np.ndarray:
+    """
+    다수 모델의 시간별 노드의 온도 변화 계산
+
+    Parameters
+    ----------
+    sss : List[StateSpace]
+        State space systems
+    dt : float
+        Delta time
+    bc : np.ndarray
+        Boundary condition (boundary temperature).
+        bc[:, 0]은 internal temperature, bc[:, 1]은 external temperature인
+        2차원 ndarray
+    T0 : Optional[float], optional
+        Initial temperature, by default None
+    callback : Optional[Callable[[np.ndarray], None]], optional
+        매 회 실행하는 callback 함수. 입력 인자는 계산한 온도 행렬.
+    progress : bool, optional
+        rich.progress 표시 여부
+
+    Returns
+    -------
+    np.ndarray
+        온도 행렬. 각 행이 time step, 열이 모델/target nodes를 의미.
+    """
     matrices = [list(self._matrices(ss=ss, dt=dt, T0=T0)) for ss in sss]
     models_count = len(sss)
     y: Any = None
@@ -209,6 +238,7 @@ class ThermalModel:
         y = np.vstack((y, yn))
 
       if callback is not None:
-        callback(y)
+        with logger.catch(reraise=True):
+          callback(y)
 
     return y

@@ -49,7 +49,22 @@ class PlotController(QtCore.QObject):
     self._app.processEvents()
 
 
+def datetime_format(time, pos):
+  """
+  float/int 데이터의 x label을 위한 함수.
+  label 간격이 적절히 설정되지 않아서 미사용
+  """
+  h = int(time // 3600)
+  d, h = divmod(h, 24)
+  m = int((time % 3600) // 60)
+  s = int(time % 60)
+
+  return (f'{d} days {h:02d}:{m:02d}:{s:02d}'
+          if d else f'{h:02d}:{m:02d}:{s:02d}')
+
+
 class SimulationPlotController(PlotController):
+  TIME0 = np.datetime64(0, 's')
 
   def __init__(self, parent=None) -> None:
     super().__init__(parent)
@@ -128,8 +143,9 @@ class SimulationPlotController(PlotController):
     # set data
     xs: np.ndarray = np.arange(values.shape[0])
     if self.dt:
-      xs = (np.datetime64(0, 's') +
-            (xs * 1000 * self.dt).astype('timedelta64[ms]'))
+      # 주의: datetime 데이터를 x축으로 지정하기 때문에,
+      # 30일 이상의 데이터의 경우 day가 바르지 않게 표시될 수 있음
+      xs = self.TIME0 + (xs * 1000 * self.dt).astype('timedelta64[ms]')
 
     for idx, line in enumerate(self._lines):
       ys = values[:, idx]
@@ -163,19 +179,20 @@ class OptimizationPlotController(PlotController):
     self.clear_plot()
 
     min_rmse = np.min(rmse['RMSE'])
-    rmse['Best'] = ['Best Model' if x == min_rmse else '' for x in rmse['RMSE']]
+    rmse['Best'] = ['_nolegend_' if x == min_rmse else '' for x in rmse['RMSE']]
 
     sns.barplot(data=rmse,
                 x='model',
                 y='RMSE',
                 hue='Best',
-                hue_order=['Best Model', ''],
+                hue_order=['_nolegend_', ''],
                 ax=self._axes,
                 alpha=0.5,
                 dodge=False)
 
     error['Absolute Error'] = np.abs(error['error'])
     error['Point'] = [f'Point {x}' for x in error['point']]
+    error['time'] += np.timedelta64(1, 'D')  # 그래프, 측정치 설정 값에 맞춤
     error['Time'] = error['time'].astype(str)
 
     sns.scatterplot(data=error,
@@ -185,6 +202,19 @@ class OptimizationPlotController(PlotController):
                     style='Point',
                     s=100,
                     ax=self._axes)
+
+    if np.any(np.isnan(self._axes.containers[0].datavalues)):
+      # 모두 Best Model이 아닐 때 (오차가 모두 같지 않을 때)
+      labels = [
+          None if np.isnan(x) else 'Best Model'
+          for x in self._axes.containers[0].datavalues
+      ]
+      self._axes.bar_label(self._axes.containers[0],
+                           labels=labels,
+                           label_type='center',
+                           fontsize='large')
+
+    self._axes.legend(bbox_to_anchor=(1, 1))
 
     self._figure.tight_layout()
     self._set_axis()

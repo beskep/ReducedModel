@@ -35,7 +35,7 @@ Item {
                 'point_text': 'Point ' + (
                     pnt_idx + 1
                 ),
-                'day_text': '0',
+                'day_text': '1',
                 'time_text': '00:00:00',
                 'time_enabled': (pnt_idx === 0)
             })
@@ -137,6 +137,7 @@ Item {
 
                     Button {
                         text : 'Optimize'
+                        highlighted : true
                         onReleased : con.optimize()
                     }
 
@@ -146,14 +147,14 @@ Item {
 
                     Label {
                         text : 'Best Model'
-                        font.pointSize: 14
+                        font.pointSize : 14
                     }
                     TextField {
                         id : _model
                         readOnly : true
                         selectByMouse : true
                         horizontalAlignment : TextField.AlignRight
-                        font.pointSize: 14
+                        font.pointSize : 14
                     }
 
                     Rectangle {
@@ -162,18 +163,18 @@ Item {
 
                     Label {
                         text : 'Linear Thermal Transmittance (Ψ)'
-                        font.pointSize: 14
+                        font.pointSize : 14
                     }
                     TextField {
                         id : _psi
                         readOnly : true
                         selectByMouse : true
                         horizontalAlignment : TextField.AlignRight
-                        font.pointSize: 14
+                        font.pointSize : 14
                     }
                     Label {
                         text : 'W/mK'
-                        font.pointSize: 14
+                        font.pointSize : 14
                     }
                 }
             }

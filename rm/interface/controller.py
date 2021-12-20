@@ -110,6 +110,7 @@ class Controller(BaseController):
     self._reduced_system = None
     self._thermal_model = None
     self._reference_systems = None
+    self._spc.models_names = None
     self.clear_results()
 
   @popup
@@ -172,6 +173,12 @@ class Controller(BaseController):
 
   @QtCore.Slot()
   def reduce_model(self):
+    if self._reference_systems is not None:
+      self.win.show_popup(title='Information',
+                          message='레퍼런스 모델은 이미 리듀스 되어 있습니다.',
+                          level=1)
+      return
+
     if self._reduced_system is not None:
       self.win.show_popup(title='Information',
                           message='이미 리듀스된 모델이 있습니다.',
@@ -201,6 +208,7 @@ class Controller(BaseController):
     self.win.show_popup(title='Success', message='모델 리듀스 완료.')
 
     self.clear_results()
+    self.update_model_state()
 
   @popup
   def _read_user_selected_model(self):
@@ -314,6 +322,12 @@ class Controller(BaseController):
 
   @popup
   def _save_model(self, path: str):
+    if self._reference_systems is not None:
+      self.win.show_popup(title='Information',
+                          message='레퍼런스 모델은 저장할 수 없습니다.',
+                          level=1)
+      return False
+
     if self._thermal_model is None:
       if self._reduced_system is None:
         raise ValueError('저장할 모델이 없습니다.')
@@ -359,11 +373,20 @@ class Controller(BaseController):
     self._spc.clear_plot()
 
   def update_model_state(self):
-    has_matrix = self._thermal_model is not None
-    has_model = self._reduced_system is not None
+    has_matrix = (self._thermal_model is not None or
+                  self._reference_systems is not None)
+    has_model = (self._reduced_system is not None or
+                 self._reference_systems is not None)
     has_result = self._results is not None
 
-    self._win.update_model_state(has_matrix, has_model, has_result)
+    if self._reference_systems is not None:
+      model = 'reference'
+    elif has_matrix or has_model:
+      model = 'matrix'
+    else:
+      model = 'none'
+
+    self._win.update_model_state(model, has_matrix, has_model, has_result)
 
   def _prep_temperature_measurement(self) -> pd.DataFrame:
     TIME0 = '2000-01-01'
@@ -379,7 +402,8 @@ class Controller(BaseController):
     df['point'] = df['point'].str.replace('Point ', '').astype(int)
 
     df['time'] = pd.to_datetime(TIME0 + ' ' + df['_time'])
-    df['time'] += pd.to_timedelta(df['_day'].astype(int), unit='D')
+    # GUI의 입력치가 1일부터 시작하기 때문에 `_day`에서 1을 빼줌
+    df['time'] += pd.to_timedelta(df['_day'].astype(int) - 1, unit='D')
 
     # 각 측정값에 동일한 시간 적용
     df.loc[(np.arange(df.shape[0]) % self.points_count != 0), 'time'] = pd.NaT

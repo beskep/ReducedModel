@@ -57,8 +57,8 @@ class _Window:
   def status_message(self, message: str):
     self._window.status_message(message)
 
-  def update_model_state(self, has_matrix, has_model, has_result):
-    self._window.update_model_state(has_matrix, has_model, has_result)
+  def update_model_state(self, model, has_matrix, has_model, has_result):
+    self._window.update_model_state(model, has_matrix, has_model, has_result)
 
   def update_files_list(self, list_):
     self._window.update_files_list(list_)
@@ -66,8 +66,8 @@ class _Window:
   def set_points_count(self, count):
     self._window.set_points_count(count)
 
-  def set_best_matching_model(self, model, ltt):
-    self._window.set_best_matching_model(model, ltt)
+  def set_best_matching_model(self, model, psi):
+    self._window.set_best_matching_model(model, psi)
 
 
 class BaseController(QtCore.QObject):

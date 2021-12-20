@@ -34,22 +34,6 @@ def _state_space(A: csc_matrix, B: csc_matrix, J: csc_matrix):
   return StateSpace(A.toarray(), B.toarray(), J.toarray(), 0.0)
 
 
-# def reduce_model(A: csc_matrix, B: csc_matrix, J: csc_matrix,
-#                  order: int) -> StateSpace:
-#   ss = _state_space(A, B, J)
-
-#   with utils.console.status('Reducing model'):
-#     reduced_system: StateSpace = balred(sys=ss, orders=order)
-
-#   logger.info(
-#       '모델 리덕션 완료 (dim {} to {})',
-#       A.shape[0],
-#       reduced_system.A.shape[0],
-#   )
-
-#   return reduced_system
-
-
 def reduce_model(state_space: StateSpace, order: int) -> StateSpace:
   with utils.console.status('Reducing model'):
     reduced: StateSpace = balred(sys=state_space, orders=order)

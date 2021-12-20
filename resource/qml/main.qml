@@ -74,8 +74,8 @@ ApplicationWindow {
                 Layout.fillWidth : true
             }
 
-            RunWidget {
-                id : run_widget
+            Simulation {
+                id : simulation
                 Layout.fillHeight : true
                 Layout.fillWidth : true
             }
@@ -105,15 +105,15 @@ ApplicationWindow {
     }
 
     function progress_bar(active) {
-        run_widget.pbar.indeterminate = active
+        simulation.pbar.indeterminate = active
     }
 
     function status_message(message) {
         footer.status_text.text = message
     }
 
-    function update_model_state(has_matrix, has_model, has_result) {
-        run_widget.update_button_hightlights(has_matrix, has_model, has_result)
+    function update_model_state(model, has_matrix, has_model, has_result) {
+        simulation.update_button_hightlights(model, has_matrix, has_model, has_result)
         footer.update_model_status_icons(has_matrix, has_model)
     }
 
