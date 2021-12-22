@@ -35,10 +35,7 @@ def init_project():
   fe = fm.FontEntry(fname=font_path.as_posix(), name=font_name)
   fm.fontManager.ttflist.insert(0, fe)
 
-  try:
-    import seaborn as sns
-  except ImportError:
-    return
+  import seaborn as sns
 
   mpl.rcParams['font.family'] = font_name
   mpl.rcParams['axes.unicode_minus'] = False

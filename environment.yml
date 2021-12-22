@@ -3,7 +3,7 @@ channels:
     - defaults
     - conda-forge
 dependencies:
-    - python=3.9
+    - python>=3.9
     - pip
     - pip:
           - PyQt5>=5.15
@@ -13,14 +13,14 @@ dependencies:
     - nomkl
     - control
     - slycot
-    - matplotlib-base
+    - matplotlib-base=3.4
     - seaborn-base
     # misc
     - rich
     - loguru
     - click
     - pyyaml
-    - cx_freeze
+    - cx_freeze>=6.9
     # dev
     - pytest
     - pylint

@@ -1,23 +1,41 @@
+from pathlib import Path
+import sys
+
 from cx_Freeze import Executable
 from cx_Freeze import setup
 
+from rm import utils
+
 if __name__ == '__main__':
-  include_files = ['data', 'resource']
+  include_files = ['sample', 'resource']
   includes = [
+      'control',
       'loguru',
-      'rich',
+      'matplotlib',
+      'numpy',
       'rich.console',
       'rich.logging',
       'rich.progress',
-      'matplotlib',
-      'seaborn',
-      'seaborn.cm',
-      'numpy',
-      'scipy',
+      'rich',
       'scipy.spatial.transform._rotation_groups',
-      'control',
+      'scipy',
+      'seaborn.cm',
+      'seaborn',
       'slycot',
   ]
+
+  try:
+    import mkl  # type: ignore
+  except ImportError:
+    pass
+  else:
+    includes.append('mkl')
+
+    bindir = Path(sys.base_prefix).joinpath('Library/bin')
+    for p in ('intel', 'core', 'def'):
+      bins = bindir.glob(f'mkl_{p}*.dll')
+      include_files.extend([x.as_posix() for x in bins])
+
   excludes = ['mypy', 'pdb', 'tkinter']
   zip_include_packages = []
 
