@@ -47,7 +47,6 @@ def main(log_level=None):
   spc = SimulationPlotController()
   opc = OptimizationPlotController()
   context.setContextProperty('con', controller)
-  # context.setContextProperty('plot_con', spc)
 
   # register figure canvas
   QtQml.qmlRegisterType(FigureCanvas, 'Backend', 1, 0, 'FigureCanvas')

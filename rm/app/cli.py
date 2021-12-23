@@ -98,7 +98,7 @@ def cli(loglevel, config_path, output):
     output.stat()
   logger.info('output: "{}"', output)
 
-  with config_path.open('r') as f:
+  with config_path.open('r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 
   env = config['environment']
@@ -144,4 +144,5 @@ def cli(loglevel, config_path, output):
 
 
 if __name__ == '__main__':
+  # pylint: disable=no-value-for-parameter
   cli()

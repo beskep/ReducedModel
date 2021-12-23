@@ -40,7 +40,8 @@ class ThermalModel:
                   he: Optional[float] = None) -> StateSpace:
     if self._system is None:
       raise ValueError('system is None')
-    elif isinstance(self._system, SystemH):
+
+    if isinstance(self._system, SystemH):
       if hi is None or he is None:
         raise ValueError(f'hi: {hi}, he: {he}')
 
@@ -108,13 +109,12 @@ class ThermalModel:
     omega = inv(np.eye(order) - dt * ss.A)
     pi = dt * np.dot(omega, ss.B)
 
-    # X0
     if T0 is not None:
-      xn = self.inital_x(Omega=omega, Pi=pi, T0=T0)
+      x0 = self.inital_x(Omega=omega, Pi=pi, T0=T0)
     else:
-      xn = np.zeros(shape=(order, 1))
+      x0 = np.zeros(shape=(order, 1))
 
-    return omega, pi, xn
+    return omega, pi, x0
 
   def compute(self,
               ss: StateSpace,

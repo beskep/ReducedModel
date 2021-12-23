@@ -1,3 +1,6 @@
+from pathlib import Path
+import sys
+
 from cx_Freeze import Executable
 from cx_Freeze import setup
 
@@ -15,7 +18,20 @@ if __name__ == '__main__':
       'control',
       'slycot',
   ]
-  excludes = ['email', 'mypy', 'pdb', 'pydoc', 'PyQt5', 'tkinter']
+
+  try:
+    import mkl  # type: ignore
+  except ImportError:
+    pass
+  else:
+    includes.append('mkl')
+
+    bindir = Path(sys.base_prefix).joinpath('Library/bin')
+    for p in ('mkl_intel', 'mkl_core', 'mkl_def', 'libiomp'):
+      bins = bindir.glob(f'{p}*.dll')
+      include_files.extend([x.as_posix() for x in bins])
+
+  excludes = ['email', 'mypy', 'pdb', 'pydoc', 'PyQt5', 'resource', 'tkinter']
   zip_include_packages = []
 
   options = {

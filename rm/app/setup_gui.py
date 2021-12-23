@@ -32,11 +32,11 @@ if __name__ == '__main__':
     includes.append('mkl')
 
     bindir = Path(sys.base_prefix).joinpath('Library/bin')
-    for p in ('intel', 'core', 'def'):
-      bins = bindir.glob(f'mkl_{p}*.dll')
+    for p in ('mkl_intel', 'mkl_core', 'mkl_def', 'libiomp'):
+      bins = bindir.glob(f'{p}*.dll')
       include_files.extend([x.as_posix() for x in bins])
 
-  excludes = ['mypy', 'pdb', 'tkinter']
+  excludes = ['mypy', 'pdb', 'resource', 'tkinter']
   zip_include_packages = []
 
   options = {
