@@ -73,6 +73,9 @@ Item {
                         editable : true
                         validator : IntValidator {}
 
+                        ToolTip.visible : hovered
+                        ToolTip.text : '창호 시공부위 온도 실측 횟수'
+
                         onValueChanged : set_points_count(points_count)
                     }
                 }

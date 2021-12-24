@@ -11,7 +11,9 @@ Item {
     property alias unit : unit
     property alias value : text_field.text
     property alias validator : text_field.validator
-    property var option_id: 'default'
+
+    property var tooltip: '';
+    property var option_id: 'default';
 
     Layout.preferredHeight : 45
     Layout.fillWidth : true
@@ -30,7 +32,6 @@ Item {
             id : label
             Layout.fillWidth : true
             Layout.preferredWidth : 20
-            text : ''
         }
 
         TextField {
@@ -39,6 +40,9 @@ Item {
             Layout.preferredWidth : 10
             selectByMouse : true
             text : ''
+
+            ToolTip.visible : ToolTip.text ? hovered : false
+            ToolTip.text : tooltip
 
             validator : DoubleValidator {}
 
@@ -49,7 +53,6 @@ Item {
             id : unit
             Layout.fillWidth : true
             Layout.preferredWidth : 5
-            text : ''
         }
     }
 }

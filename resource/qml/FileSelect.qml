@@ -133,7 +133,9 @@ Item {
                 ButtonGroup.group : file_group
                 text : 'Reference Models'
 
-                // TODO check되면 add file, load 버튼 비활성화
+                ToolTip.visible : hovered
+                ToolTip.text : '최적화 대상 모델을 불러옵니다.'
+
                 onCheckedChanged : {
                     if (checked) {
                         list_model.clear();
@@ -151,6 +153,8 @@ Item {
                 ToolTip.text : '모델을 구성할 행렬 파일을 읽습니다.'
 
                 onCheckedChanged : {
+                    app.air_temperature(checked);
+
                     if (checked) {
                         list_model.clear();
                         con.delete_all_files();
@@ -162,6 +166,7 @@ Item {
             }
 
             RadioButton {
+                id : rb_model
                 ButtonGroup.group : file_group
                 text : 'Read Model'
 
@@ -181,7 +186,7 @@ Item {
 
             Button {
                 id : _af
-                highlighted : true
+                highlighted : rb_matrix.checked || rb_model.checked
                 font.capitalization : Font.Capitalize
                 implicitWidth : _af_layout.implicitWidth + 10
 

@@ -11,6 +11,8 @@ import 'custom'
 ApplicationWindow {
     id : root
 
+    property ApplicationWindow app : root
+
     width : 1600
     height : 900
     visible : true
@@ -119,6 +121,10 @@ ApplicationWindow {
 
     function update_files_list(list) {
         file_option.file_select.update_files_list(list)
+    }
+
+    function air_temperature(value) {
+        file_option.model_options.at_enabled = value
     }
 
     function set_points_count(count) {

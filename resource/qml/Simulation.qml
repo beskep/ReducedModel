@@ -20,6 +20,9 @@ ColumnLayout {
             text : 'Reduce Model'
             font.capitalization : Font.Capitalize
 
+            ToolTip.visible : hovered
+            ToolTip.text : '모델 리덕션 시행'
+
             onReleased : {
                 con.reduce_model();
             }
@@ -30,6 +33,9 @@ ColumnLayout {
             text : 'Compute'
             font.capitalization : Font.Capitalize
 
+            ToolTip.visible : hovered
+            ToolTip.text : '시뮬레이션 시행'
+
             onReleased : {
                 con.compute();
             }
@@ -39,6 +45,9 @@ ColumnLayout {
             id : btn_save_model
             text : 'Save Model'
             font.capitalization : Font.Capitalize
+
+            ToolTip.visible : hovered
+            ToolTip.text : '모델 저장'
 
             onReleased : {
                 save_file_dialog.nameFilters = ['npz (*.npz)', 'All files (*.*)'];
@@ -51,6 +60,9 @@ ColumnLayout {
             id : btn_save_result
             text : 'Save Result'
             font.capitalization : Font.Capitalize
+
+            ToolTip.visible : hovered
+            ToolTip.text : '시뮬레이션 결과 저장 (csv 형식)'
 
             onReleased : {
                 save_file_dialog.nameFilters = ['csv (*.csv)', 'All files (*.*)'];
