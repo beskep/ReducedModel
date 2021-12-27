@@ -18,5 +18,5 @@ if __name__ == '__main__':
 
   files.sort()
 
-  with open(pyproject_path, 'w') as f:
-    json.dump({'files': files}, fp=f, indent=2)
+  with open(pyproject_path, 'w', encoding='utf-8') as f:
+    json.dump({'files': files}, fp=f, indent=4)

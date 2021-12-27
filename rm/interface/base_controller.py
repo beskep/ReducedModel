@@ -49,7 +49,7 @@ class _Window:
     """
     logger.debug('[Popup] {}: {}', title, message)
     self._window.show_popup(title, message, level)
-    self.status_message('{}: {}'.format(title, message))
+    self.status_message(f'{title}: {message}')
 
   def progress_bar(self, active: bool):
     self._window.progress_bar(active)
@@ -88,9 +88,9 @@ class BaseController(QtCore.QObject):
     self._win: Optional[_Window] = None
     self._spc: Optional[SimulationPlotController] = None
     self._opc: Optional[OptimizationPlotController] = None
-    self._files = dict()
-    self._options = dict()
-    self._temperature = dict()  # 실측 온도
+    self._files = {}
+    self._options = {}
+    self._temperature = {}  # 실측 온도
     self._points_count = 4  # 시뮬레이션 결과 중 온도 측정 지점 개수
 
   @property
@@ -150,7 +150,7 @@ class BaseController(QtCore.QObject):
 
   @QtCore.Slot()
   def delete_all_files(self):
-    self._files = dict()
+    self._files.clear()
     logger.debug('Deleted all files')
 
   @QtCore.Slot(str)

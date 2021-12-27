@@ -10,7 +10,7 @@ from rm.utils import DIR
 
 
 class ReferenceSystems:
-  LTT = 'LinearThermalTransmittance.yaml'
+  FNAME = 'LinearThermalTransmittance.yaml'
 
   def __init__(self, path: Optional[Path] = None) -> None:
     if path is None:
@@ -19,15 +19,15 @@ class ReferenceSystems:
     self._paths = tuple(path.glob('*.npz'))
     self._names = tuple(x.stem for x in self._paths)
 
-    with path.joinpath(self.LTT).open('r') as f:
-      self._ltt: dict = yaml.safe_load(f)
+    with path.joinpath(self.FNAME).open('r', encoding='utf-8') as f:
+      self._psi: dict = yaml.safe_load(f)
 
     npz = sorted(self._names)
-    ltt = sorted(self._ltt.keys())
+    psi = sorted(self._psi.keys())
     logger.debug('Reference models (npz): {}', npz)
-    logger.debug('Reference models (yaml): {}', ltt)
+    logger.debug('Reference models (yaml): {}', psi)
 
-    if npz != ltt:
+    if npz != psi:
       raise ValueError('레퍼런스 모델 파일, 선형열관류율 불일치')
 
   @property
@@ -40,7 +40,7 @@ class ReferenceSystems:
 
   @property
   def linear_thermal_transmittance(self):
-    return self._ltt
+    return self._psi
 
   def load(self) -> List[StateSpace]:
     tm = ThermalModel(system=None)

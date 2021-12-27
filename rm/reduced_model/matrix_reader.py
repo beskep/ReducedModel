@@ -17,6 +17,8 @@ from scipy.sparse import csc_matrix
 
 from rm.utils import StrPath
 
+ENC = 'utf-8'
+
 
 def _get_node_number(line: str):
   loc = line.find(MatrixReader.DELIMITER)
@@ -55,7 +57,7 @@ class MatrixReader:
   def _count_skip_rows(cls, path):
     count = 0
 
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding=ENC) as f:
       while True:
         line = f.readline()
         if not (line and line.startswith(cls.COMMENT_PREFIX)):
@@ -179,7 +181,7 @@ class MatricesReader:
     lines = deque(maxlen=2)
 
     try:
-      with open(path, 'r') as f:
+      with open(path, 'r', encoding=ENC) as f:
         while True:
           line = f.readline()
           if line:
@@ -192,7 +194,7 @@ class MatricesReader:
         raise ValueError
 
     except ValueError as e:
-      raise ValueError('파일 형식 오류: {}'.format(path)) from e
+      raise ValueError(f'파일 형식 오류: {path}') from e
 
     return max_node
 
@@ -254,12 +256,14 @@ class SystemMatricesReader(MatricesReader):
 
 
 if __name__ == '__main__':
-  root_dir = Path(__file__).parents[1]
+  from rm.utils import DIR
+
+  data_dir = DIR.ROOT.joinpath('data/test_case_simple')
   matrix = SystemMatricesReader(
-      damping=root_dir.joinpath('test/C_HcombTHERM1_DMPV1.mtx'),
-      stiffness=root_dir.joinpath('test/K_HcombTHERM1_STIF1.mtx'),
-      internal_load=root_dir.joinpath('test/Lin_HinTHERM1_LOAD1.mtx'),
-      external_load=root_dir.joinpath('test/Lout_HoutTHERM1_LOAD1.mtx'))
+      damping=data_dir.joinpath('C_HcombTHERM1_DMPV1.mtx'),
+      stiffness=data_dir.joinpath('K_HcombTHERM1_STIF1.mtx'),
+      internal_load=data_dir.joinpath('Lin_HinTHERM1_LOAD1.mtx'),
+      external_load=data_dir.joinpath('Lout_HoutTHERM1_LOAD1.mtx'))
 
   end = 3
   print(matrix.damping_matrix[0:end, 0:end])
