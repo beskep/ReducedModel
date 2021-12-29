@@ -123,8 +123,9 @@ ApplicationWindow {
         file_option.file_select.update_files_list(list)
     }
 
-    function air_temperature(value) {
+    function from_matrices(value) {
         file_option.model_options.at_enabled = value
+        file_option.model_options.order_enabled = value
     }
 
     function set_points_count(count) {

@@ -153,7 +153,7 @@ Item {
                 ToolTip.text : '모델을 구성할 행렬 파일을 읽습니다.'
 
                 onCheckedChanged : {
-                    app.air_temperature(checked);
+                    app.from_matrices(checked);
 
                     if (checked) {
                         list_model.clear();

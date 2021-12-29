@@ -102,10 +102,11 @@ class SimulationPlotController(PlotController):
 
   def _set_axis(self):
     super()._set_axis()
-    self._axes.set_xlabel('Time step')
+    self._axes.set_xlabel(None)
     self._axes.set_ylabel('Temperature [ºC]')
     if self.dt:
       self._axes.xaxis.set_major_formatter(DateFormatter('%dd %H:%M:%S'))
+    self._figure.tight_layout()
 
   def clear_plot(self):
     super().clear_plot()
@@ -161,6 +162,7 @@ class SimulationPlotController(PlotController):
       margin = 0.05 * (ymax - ymin)
       self._axes.set_ylim(ymin - margin, ymax + margin)
 
+    self._axes.set_xlabel(None)
     self.draw()
 
 
@@ -172,8 +174,9 @@ class OptimizationPlotController(PlotController):
 
   def _set_axis(self):
     super()._set_axis()
-    self._axes.set_xlabel('Model')
+    self._axes.set_xlabel(None)
     self._axes.set_ylabel('Error [ºC]')
+    self._figure.tight_layout()
 
   def plot(self, error: pd.DataFrame, rmse: pd.DataFrame):
     self.clear_plot()
@@ -216,6 +219,5 @@ class OptimizationPlotController(PlotController):
 
     self._axes.legend(bbox_to_anchor=(1, 1))
 
-    self._figure.tight_layout()
     self._set_axis()
     self.draw()

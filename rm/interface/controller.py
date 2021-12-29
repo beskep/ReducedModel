@@ -84,7 +84,7 @@ def _temperature_error(measured: pd.DataFrame, simulated: pd.DataFrame):
 
   error: pd.DataFrame = pd.concat(dfs)
   error = pd.merge(left=error, right=measured, on=['time', 'point'])
-  error['error'] = error['measurement'] - error['simulated']
+  error['error'] = error['simulated'] - error['measurement']
 
   rmse: pd.DataFrame = error.groupby('model')['error'].apply(
       lambda x: np.sqrt(np.mean(np.square(x)))).to_frame().reset_index()

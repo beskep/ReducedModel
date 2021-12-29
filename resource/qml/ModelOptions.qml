@@ -11,34 +11,14 @@ Item {
     id : root
 
     property var at_enabled: false;
+    property var order_enabled: false;
 
     ColumnLayout {
         anchors.fill : parent
 
         OptionItem {
-            label.text : 'Reduced Model Order'
-            value : '10'
-            option_id : 'order'
-            tooltip : '모델 리덕션 목표 차수'
-            validator : IntValidator {}
-        }
-        OptionItem {
-            label.text : 'Δt'
-            value : '3600.0'
-            unit.text : 'sec'
-            option_id : 'deltat'
-            tooltip : '시뮬레이션 시간 간격'
-        }
-        OptionItem {
-            label.text : 'Initial temperature'
-            value : '0.0'
-            unit.text : '℃'
-            option_id : 'initial temperature'
-            tooltip : '초기 온도'
-        }
-        OptionItem {
             id : _at_int
-            label.text : 'Internal air temperature'
+            label.text : 'Internal Air Temperature'
             value : '0.0'
             unit.text : '℃'
             option_id : 'internal air temperature'
@@ -47,12 +27,38 @@ Item {
         }
         OptionItem {
             id : _at_ext
-            label.text : 'External air temperature'
+            label.text : 'External Air Temperature'
             value : '0.0'
             unit.text : '℃'
             option_id : 'external air temperature'
             tooltip : '실외 air temperature (행렬 파일 입력 시 필요)'
             enabled : at_enabled
+        }
+
+        OptionItem {
+            label.text : 'Reduced Model Order'
+            value : '10'
+            option_id : 'order'
+            tooltip : '모델 리덕션 목표 차수'
+            validator : IntValidator {}
+            enabled : order_enabled
+        }
+
+        Text {}
+
+        OptionItem {
+            label.text : 'Δt'
+            value : '3600.0'
+            unit.text : 'sec'
+            option_id : 'deltat'
+            tooltip : '시뮬레이션 시간 간격'
+        }
+        OptionItem {
+            label.text : 'Initial Temperature'
+            value : '0.0'
+            unit.text : '℃'
+            option_id : 'initial temperature'
+            tooltip : '초기 온도'
         }
 
         RowLayout {
