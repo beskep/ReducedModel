@@ -190,6 +190,9 @@ Item {
                 font.capitalization : Font.Capitalize
                 implicitWidth : _af_layout.implicitWidth + 10
 
+                ToolTip.visible : hovered
+                ToolTip.text : '모델 구성 파일 추가'
+
                 RowLayout {
                     id : _af_layout
                     anchors.fill : parent
@@ -216,6 +219,9 @@ Item {
                 highlighted : list_model.count
                 font.capitalization : Font.Capitalize
                 implicitWidth : _load_layout.implicitWidth + 20
+
+                ToolTip.visible : hovered
+                ToolTip.text : '선택된 파일을 읽고 모델 구성'
 
                 RowLayout {
                     id : _load_layout

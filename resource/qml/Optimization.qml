@@ -140,6 +140,7 @@ Item {
 
                     Button {
                         text : 'Optimize'
+                        font.capitalization : Font.Capitalize
                         highlighted : true
                         onReleased : con.optimize()
                     }
@@ -165,7 +166,7 @@ Item {
                     }
 
                     Label {
-                        text : 'Linear Thermal Transmittance (Ψ)'
+                        text : 'Linear Thermal Transmittance (𝝍)'
                         font.pointSize : 14
                     }
                     TextField {

@@ -44,6 +44,8 @@ Item {
                 validator : IntValidator {}
 
                 text : '0'
+                ToolTip.visible : hovered
+                ToolTip.text : '시뮬레이션 시작 시점 (1 day 00:00:00) 기준 측정 시간'
 
                 onEditingFinished : temperature_measurement()
             }
@@ -65,6 +67,8 @@ Item {
                 validator : RegExpValidator {
                     regExp : /^([0-1]?[0-9]|2[0-3]):([0-5][0-9]):[0-5][0-9]$ /
                 }
+                ToolTip.visible : hovered
+                ToolTip.text : '시뮬레이션 시작 시점 (1 day 00:00:00) 기준 측정 시간'
 
                 enabled : _day.enabled
                 color : enabled ? '#000000' : '#00000000'
