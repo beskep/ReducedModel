@@ -25,6 +25,7 @@ def _nodes(matrix: Union[csc_matrix, StrPath],
     else:
       matrix = reader.read_matrix(path=matrix, square=False)
 
+  matrix[np.nonzero(matrix)] = 1.0  # 주의! target nodes의 원소는 1이어야 함.
   matrix /= matrix.data.size  # 0이 아닌 node 개수로 나눔. 왜인지는 모름...
 
   return matrix
@@ -34,9 +35,12 @@ def _state_space(A: csc_matrix, B: csc_matrix, J: csc_matrix):
   return StateSpace(A.toarray(), B.toarray(), J.toarray(), 0.0)
 
 
-def reduce_model(state_space: StateSpace, order: int) -> StateSpace:
+def reduce_model(state_space: StateSpace,
+                 order: int,
+                 method='matchdc') -> StateSpace:
+  # TODO 리덕션 방식 cli에서 옵션으로
   with utils.console.status('Reducing model'):
-    reduced: StateSpace = balred(sys=state_space, orders=order)
+    reduced: StateSpace = balred(sys=state_space, orders=order, method=method)
 
   logger.info(
       '모델 리덕션 완료 (dim {} to {})',

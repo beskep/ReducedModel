@@ -76,7 +76,7 @@ def _set_logger(loglevel):
               help='로그 표시 레벨 (debug, info, ...)')
 @click.argument('config_path')
 @click.argument('output', required=False)
-def cli(loglevel, config_path, output):
+def cli(loglevel, config_path, output):  # pylint: disable-all
   """
   수치모델 축소 및 시뮬레이션
 
@@ -110,8 +110,8 @@ def cli(loglevel, config_path, output):
                              K=paths[1],
                              Li=paths[2],
                              Le=paths[3],
-                             Ti=air_temperature['internal'] + 273.15,
-                             Te=air_temperature['external'] + 273.15,
+                             Ti=air_temperature['internal'],
+                             Te=air_temperature['external'],
                              Ns=paths[4:])
   logger.info('모델 차수: {}', system.C.shape[0])
 
@@ -127,10 +127,11 @@ def cli(loglevel, config_path, output):
   if order:
     logger.info('리덕션 후 모델 차수: {}', ss.A.shape[0])
 
+  T0 = env['initial_temperature']
   out = model.compute(ss=ss,
                       dt=float(env['dt']),
                       bc=temperature,
-                      T0=float(env['initial_temperature']),
+                      T0=(None if T0 is None else float(T0)),
                       progress=True)
   df = pd.DataFrame(out)
 
@@ -141,6 +142,8 @@ def cli(loglevel, config_path, output):
     df.to_csv(output.joinpath('SimulatedTemperature.csv'))
     model.save(path=output.joinpath('Model.npz').as_posix(), state_space=ss)
     logger.info('시뮬레이션 결과 저장 완료: "{}"', output)
+
+  return df
 
 
 if __name__ == '__main__':

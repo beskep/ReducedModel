@@ -123,17 +123,18 @@ class Controller(BaseController):
         for key, value in self._files.items()
         if value != self.TARGET_NODES_ID
     }
-    air_temperature = [
-        self._options[f'{x} air temperature'] + 273.15
-        for x in ['internal', 'external']
-    ]
+
+    Ti = self._options['internal air temperature']
+    Te = self._options['external air temperature']
+    if not Ti or not Te:
+      raise ValueError('Air Temperature는 0일 수 없습니다.')
 
     system = System.from_files(C=id_file['Capacitance'],
                                K=id_file['Conductance'],
                                Li=id_file['Internal Solicitation'],
                                Le=id_file['External Solicitation'],
-                               Ti=air_temperature[0],
-                               Te=air_temperature[1],
+                               Ti=Ti,
+                               Te=Te,
                                Ns=target_nodes)
     self._thermal_model = ThermalModel(system=system)
     self.points_count = len(target_nodes)
