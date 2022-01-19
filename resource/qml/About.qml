@@ -24,12 +24,12 @@ Rectangle {
                 }
 
                 Label {
-                    text : 'Version: 1.0.0'
+                    text : 'Version: 1.1.0'
                     font.pointSize : 12
                 }
 
                 Label {
-                    text : 'Built on 2021-12-01'
+                    text : 'Built on 2022-01-19'
                     font.pointSize : 12
                 }
             }

@@ -37,14 +37,12 @@ def init_project():
 
   import seaborn as sns
 
-  mpl.rcParams['font.family'] = font_name
-  mpl.rcParams['axes.unicode_minus'] = False
-
   sns.set_theme(context='notebook',
                 style='whitegrid',
                 palette='Dark2',
                 font=font_name,
                 rc={
                     'axes.edgecolor': '0.2',
-                    'grid.color': '0.8'
+                    'grid.color': '0.8',
+                    'axes.unicode_minus': False
                 })

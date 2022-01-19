@@ -11,8 +11,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-cmap = sns.color_palette('Dark2')
-
 
 class PlotController(QtCore.QObject):
 
@@ -126,7 +124,14 @@ class SimulationPlotController(PlotController):
       data[['x', 'y']] = 0.0
       kwargs = dict(hue='Model', style='Point')
 
-    sns.lineplot(data=data, x='x', y='y', ax=self._axes, lw=2.0, **kwargs)
+    sns.lineplot(data=data,
+                 x='x',
+                 y='y',
+                 palette='Dark2',
+                 ax=self._axes,
+                 lw=2.0,
+                 **kwargs)
+    self._axes.legend(loc=3)
     self._lines = self._axes.get_lines()[:(points_count * self._models_count)]
 
   def update_plot(self, values: np.ndarray):
@@ -209,7 +214,7 @@ class OptimizationPlotController(PlotController):
     if np.any(np.isnan(self._axes.containers[0].datavalues)):
       # 모두 Best Model이 아닐 때 (오차가 모두 같지 않을 때)
       labels = [
-          None if np.isnan(x) else 'Best Model'
+          None if np.isnan(x) else 'Best\nModel'
           for x in self._axes.containers[0].datavalues
       ]
       self._axes.bar_label(self._axes.containers[0],

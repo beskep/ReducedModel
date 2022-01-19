@@ -21,7 +21,15 @@ class X0Option:
   atol: float = 0.0
 
 
+@dataclass
+class Matrices:
+  omega: np.ndarray
+  pi: np.ndarray
+  x: np.ndarray
+
+
 class ThermalModel:
+  CALLBACK_UPDATE = 20
 
   def __init__(self, system: Union[System, SystemH, None]) -> None:
     self._system = system
@@ -37,7 +45,8 @@ class ThermalModel:
   def state_space(self,
                   order: Optional[int] = None,
                   hi: Optional[float] = None,
-                  he: Optional[float] = None) -> StateSpace:
+                  he: Optional[float] = None,
+                  reduction_method: Optional[str] = 'truncate') -> StateSpace:
     if self._system is None:
       raise ValueError('system is None')
 
@@ -49,7 +58,7 @@ class ThermalModel:
     else:
       system = self._system
 
-    ss = system.model(order=order)
+    ss = system.model(order=order, reduction_method=reduction_method)
 
     return ss
 
@@ -114,7 +123,7 @@ class ThermalModel:
     else:
       x0 = np.zeros(shape=(order, 1))
 
-    return omega, pi, x0
+    return Matrices(omega=omega, pi=pi, x=x0)
 
   def compute(self,
               ss: StateSpace,
@@ -148,27 +157,31 @@ class ThermalModel:
     np.ndarray
         온도 행렬. 각 행이 time step, 열이 target nodes를 의미.
     """
-    omega, pi, xn = self._matrices(ss=ss, dt=dt, T0=T0)
+    ms = self._matrices(ss=ss, dt=dt, T0=T0)
     y: Any = None
 
     it: Iterable = range(bc.shape[0])
     if progress:
       it = track(it, description='Computing...', console=utils.console)
 
+    update = bc.shape[0] // self.CALLBACK_UPDATE
+
     for step in it:
       bcn = bc[step].reshape([2, 1])  # [[Tint], [Text]]
 
-      yn = np.dot(ss.C, xn) + np.dot(ss.D, bcn)
-      xn = np.dot(omega, xn) + np.dot(pi, bcn)
+      yn = np.dot(ss.C, ms.x) + np.dot(ss.D, bcn)
+      ms.x = np.dot(ms.omega, ms.x) + np.dot(ms.pi, bcn)
 
       if y is None:
         y = yn.reshape([1, -1])
       else:
         y = np.vstack((y, yn.reshape([1, -1])))
 
-      if callback is not None:
-        with logger.catch(reraise=True):
-          callback(y)
+      if callback and (step % update == 0):
+        callback(y)
+
+    if callback:
+      callback(y)
 
     return y
 
@@ -206,39 +219,39 @@ class ThermalModel:
     np.ndarray
         온도 행렬. 각 행이 time step, 열이 모델/target nodes를 의미.
     """
-    matrices = [list(self._matrices(ss=ss, dt=dt, T0=T0)) for ss in sss]
-    models_count = len(sss)
+    matrices = [self._matrices(ss=ss, dt=dt, T0=T0) for ss in sss]
     y: Any = None
 
     it: Iterable = range(bc.shape[0])
     if progress:
       it = track(it, description='Computing...', console=utils.console)
 
+    update = bc.shape[0] // self.CALLBACK_UPDATE
+
     for step in it:
       bcn = bc[step].reshape([2, 1])  # [[Tint], [Text]]
 
-      yn_list = []
-      for model in range(models_count):
-        omega, pi, xnm = matrices[model]
+      yns = []
+      for ss, ms in zip(sss, matrices):
+        ynm = np.dot(ss.C, ms.x) + np.dot(ss.D, bcn)
+        ms.x = np.dot(ms.omega, ms.x) + np.dot(ms.pi, bcn)
 
-        ynm = np.dot(sss[model].C, xnm) + np.dot(sss[model].D, bcn)
-        xnm = np.dot(omega, xnm) + np.dot(pi, bcn)
-
-        yn_list.append(ynm.ravel())
-        matrices[model][2] = xnm
+        yns.append(ynm.ravel())
 
       # [Y(model0, point0), Y(model0, point1), ...,
       #  Y(model1, point0), Y(model1, point1), ...]
       # (ndim == 1)
-      yn = np.hstack(yn_list)
+      yn = np.hstack(yns)
 
       if y is None:
         y = yn
       else:
         y = np.vstack((y, yn))
 
-      if callback is not None:
-        with logger.catch(reraise=True):
-          callback(y)
+      if callback and (step % update == 0):
+        callback(y)
+
+    if callback:
+      callback(y)
 
     return y

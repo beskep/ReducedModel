@@ -12,7 +12,7 @@ import Backend 1.0
 Item {
     id : optimization
 
-    property var points_count: 4;
+    property var points_count: 3;
     Component.onCompleted : set_points_count(points_count);
 
     function set_points_count(count) {
@@ -157,7 +157,7 @@ Item {
                         id : _model
                         readOnly : true
                         selectByMouse : true
-                        horizontalAlignment : TextField.AlignRight
+                        horizontalAlignment : TextField.AlignHCenter
                         font.pointSize : 14
                     }
 
@@ -173,7 +173,7 @@ Item {
                         id : _psi
                         readOnly : true
                         selectByMouse : true
-                        horizontalAlignment : TextField.AlignRight
+                        horizontalAlignment : TextField.AlignHCenter
                         font.pointSize : 14
                     }
                     Label {

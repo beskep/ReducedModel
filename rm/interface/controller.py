@@ -63,7 +63,7 @@ def _temperature_error(measured: pd.DataFrame, simulated: pd.DataFrame):
       pdtd = pd.Timedelta(time)
       raise ValueError(f'시뮬레이션 범위에 포함되지 않는 시간이 입력됐습니다: {pdtd}')
 
-  # FIXME 비효율적
+  # XXX 비효율적
   models = np.unique(simulated['model'])
   points = np.unique(measured['point'])
   dfs = []
@@ -71,6 +71,7 @@ def _temperature_error(measured: pd.DataFrame, simulated: pd.DataFrame):
     for model in models:
       dfpm = simulated.loc[(simulated['point'] == point) &
                            (simulated['model'] == model), :]
+
       temperature = np.interp(measured_times.astype(float),
                               xp=dfpm['time'].values.astype(float),
                               fp=dfpm['value'].values)
@@ -250,9 +251,10 @@ class Controller(BaseController):
     if self._reference_systems is None:
       self._reference_systems = ReferenceSystems()
 
-    names = self._reference_systems.names
-    self.win.update_files_list(list(names))
-    self.points_count = 4
+    models = self._reference_systems.names
+    psi = self._reference_systems.psi
+    self.win.update_files_list([f'{x} (𝝍 = {psi[x]:.4f} W/mK)' for x in models])
+    self.points_count = self.REFERENCE_POINTS_COUNT
 
   @popup
   def _compute(self, dt: float, bc: np.ndarray, T0=0.0):
@@ -435,8 +437,8 @@ class Controller(BaseController):
     self._opc.plot(error=error, rmse=rmse)
 
     model = rmse.loc[rmse['RMSE'] == np.min(rmse['RMSE']), 'model'].values[0]
-    psi = self._reference_systems.linear_thermal_transmittance[model]
-    self.win.set_best_matching_model(model, psi)  # TODO formatting
+    psi = self._reference_systems.psi[model]
+    self.win.set_best_matching_model(model, f'{psi:.4f}')
 
   @QtCore.Slot()
   def optimize(self):

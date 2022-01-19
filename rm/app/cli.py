@@ -69,24 +69,23 @@ def _set_logger(loglevel):
   set_logger(l)
 
 
-@click.command()
-@click.option('--loglevel',
-              '-l',
-              default='INFO',
-              help='로그 표시 레벨 (debug, info, ...)')
-@click.argument('config_path')
-@click.argument('output', required=False)
-def cli(loglevel, config_path, output):  # pylint: disable-all
-  """
-  수치모델 축소 및 시뮬레이션
+def _system(config, config_dir: Path):
+  paths = _config_paths(config=config, config_dir=config_dir)
+  air_temperature = config['model']['air_temperature']
 
-  \b
-  Arguments:
-      config_path: config.yaml 경로
-      output:      결과 저장 경로 (폴더)
-  """
-  _set_logger(loglevel)
+  # State-Space System
+  system = System.from_files(C=paths[0],
+                             K=paths[1],
+                             Li=paths[2],
+                             Le=paths[3],
+                             Ti=air_temperature['internal'],
+                             Te=air_temperature['external'],
+                             Ns=paths[4:])
 
+  return system
+
+
+def main(config_path, output=None):
   config_path = Path(config_path).resolve()
   config_path.stat()
   logger.info('config: "{}"', config_path)
@@ -102,17 +101,10 @@ def cli(loglevel, config_path, output):  # pylint: disable-all
     config = yaml.safe_load(f)
 
   env = config['environment']
-  paths = _config_paths(config=config, config_dir=config_path.parent)
   temperature = _read_temperature(path=env['temperature_path'],
                                   config_dir=config_path.parent)
-  air_temperature = config['model']['air_temperature']
-  system = System.from_files(C=paths[0],
-                             K=paths[1],
-                             Li=paths[2],
-                             Le=paths[3],
-                             Ti=air_temperature['internal'],
-                             Te=air_temperature['external'],
-                             Ns=paths[4:])
+
+  system = _system(config=config, config_dir=config_path.parent)
   logger.info('모델 차수: {}', system.C.shape[0])
 
   order = env['order']
@@ -123,7 +115,9 @@ def cli(loglevel, config_path, output):  # pylint: disable-all
     logger.info('모델 리덕션 목표 차수: {}', order)
 
   model = ThermalModel(system=system)
-  ss = model.state_space(order=order)
+  method = env['reduction_method']
+  method = None if not method else str(method).lower()
+  ss = model.state_space(order=order, reduction_method=method)
   if order:
     logger.info('리덕션 후 모델 차수: {}', ss.A.shape[0])
 
@@ -144,6 +138,26 @@ def cli(loglevel, config_path, output):  # pylint: disable-all
     logger.info('시뮬레이션 결과 저장 완료: "{}"', output)
 
   return df
+
+
+@click.command()
+@click.option('--loglevel',
+              '-l',
+              default='INFO',
+              help='로그 표시 레벨 (debug, info, ...)')
+@click.argument('config_path')
+@click.argument('output', required=False)
+def cli(loglevel, config_path, output):  # pylint: disable-all
+  """
+  수치모델 축소 및 시뮬레이션
+
+  \b
+  Arguments:
+      config_path: config.yaml 경로
+      output:      결과 저장 경로 (폴더)
+  """
+  _set_logger(loglevel)
+  main(config_path=config_path, output=output)
 
 
 if __name__ == '__main__':

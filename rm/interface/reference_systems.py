@@ -39,7 +39,8 @@ class ReferenceSystems:
     return self._paths
 
   @property
-  def linear_thermal_transmittance(self):
+  def psi(self):
+    """dict of linear thermal transmittance {model: psi}"""
     return self._psi
 
   def load(self) -> List[StateSpace]:

@@ -82,6 +82,8 @@ class BaseController(QtCore.QObject):
   OPTION_IDS = ('order', 'deltat', 'initial temperature',
                 'internal air temperature', 'external air temperature')
 
+  REFERENCE_POINTS_COUNT = 3
+
   def __init__(self) -> None:
     super().__init__()
 
@@ -91,7 +93,7 @@ class BaseController(QtCore.QObject):
     self._files = {}
     self._options = {}
     self._temperature = {}  # 실측 온도
-    self._points_count = 4  # 시뮬레이션 결과 중 온도 측정 지점 개수
+    self._points_count = self.REFERENCE_POINTS_COUNT  # 시뮬레이션 결과 중 온도 측정 지점 개수
 
   @property
   def win(self) -> _Window:

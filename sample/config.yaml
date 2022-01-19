@@ -16,3 +16,4 @@ environment:
     order: null
     dt: 60 # [sec]
     initial_temperature: 10 # [°C]
+    reduction_method: "Truncate" # "Truncate" or "MatchDC" (case invariant)

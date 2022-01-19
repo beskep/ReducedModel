@@ -25,8 +25,10 @@ def _nodes(matrix: Union[csc_matrix, StrPath],
     else:
       matrix = reader.read_matrix(path=matrix, square=False)
 
-  matrix[np.nonzero(matrix)] = 1.0  # 주의! target nodes의 원소는 1이어야 함.
-  matrix /= matrix.data.size  # 0이 아닌 node 개수로 나눔. 왜인지는 모름...
+  # 대상 노드의 평균 온도를 구하기 위해 각 노드 값을 1/N으로 설정
+  matrix[np.nonzero(matrix)] = np.divide(1.0,
+                                         matrix.data.size,
+                                         dtype=matrix.dtype)
 
   return matrix
 
@@ -37,8 +39,8 @@ def _state_space(A: csc_matrix, B: csc_matrix, J: csc_matrix):
 
 def reduce_model(state_space: StateSpace,
                  order: int,
-                 method='matchdc') -> StateSpace:
-  # TODO 리덕션 방식 cli에서 옵션으로
+                 method: Optional[str] = 'truncate') -> StateSpace:
+  method = method or 'truncate'
   with utils.console.status('Reducing model'):
     reduced: StateSpace = balred(sys=state_space, orders=order, method=method)
 
@@ -218,14 +220,13 @@ class System:
 
     return A, B, J
 
-  def model(self, order: Optional[int] = None):
+  def model(self, order: Optional[int] = None, reduction_method='truncate'):
     A, B, J = self.state_matrices()
-
     ss = _state_space(A, B, J)
 
     if order is not None:
       if order < A.shape[0]:
-        ss = reduce_model(state_space=ss, order=order)
+        ss = reduce_model(state_space=ss, order=order, method=reduction_method)
       else:
         logger.warning('지정한 차수 ({})가 모델 차수 ({}) 이상입니다. '
                        '모델을 축소하지 않습니다.', order, A.shape[0])
